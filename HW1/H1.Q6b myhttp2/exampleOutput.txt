@@ -1,0 +1,552 @@
+"/home/silence/Documents/dsu/2022b - fall/CSC 718 - Operating Systems & Parallel Programming/HW1/H1.Q6b myhttp2/myhttpd2"
+> myhttpd2 server listening on port 8080
+
+> Thread 2 Waiting for a Connection...
+
+> Thread 3 Waiting for a Connection...
+
+> Thread 4 Waiting for a Connection...
+
+> Thread 0 Waiting for a Connection...
+
+> Thread 1 Waiting for a Connection...
+> Thread 2 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 2 Waiting for a Connection...
+> Thread 3 Received connection from 127.0.0.1
+============================
+Bytes Received: 636
+String Received:
+
+GET /favicon.ico HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: image/avif,image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://localhost:8080/
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Sec-Fetch-Dest: image
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 3 Waiting for a Connection...
+> Thread 4 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Waiting for a Connection...
+> Thread 0 Received connection from 127.0.0.1
+============================
+Bytes Received: 636
+String Received:
+
+GET /favicon.ico HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: image/avif,image/webp,*/*
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Referer: http://localhost:8080/
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Sec-Fetch-Dest: image
+Sec-Fetch-Mode: no-cors
+Sec-Fetch-Site: same-origin
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 0 Waiting for a Connection...
+> Thread 1 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 1 Waiting for a Connection...
+> Thread 2 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 2 Waiting for a Connection...
+> Thread 3 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 3 Waiting for a Connection...
+> Thread 4 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Waiting for a Connection...
+> Thread 0 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 0 Waiting for a Connection...
+> Thread 1 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 1 Waiting for a Connection...
+> Thread 2 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+> Thread 3 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+> Thread 4 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+> Thread 0 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+> Thread 1 Received connection from 127.0.0.1
+============================
+Bytes Received: 699
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Cookie: username-localhost-8888="2|1:0|10:1663981139|23:username-localhost-8888|44:NGU0MmViMWZkNDU1NDQ5M2E4M2FiNDJlYThjYjJkNjA=|eeb756584fdceff92b3d3e695fef08cc9b6438516b24ef848899dcdbc49372d5"; _xsrf=2|001bfd1a|334574a192385addaa332a5b9ad3b6fb|1663980685
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+
+--------------------------
+> Total Messages: 30
+> > Sent: 15
+> > Receieved: 15
+
+> Total Connections: 15
+--------------------------
+
+
+Process finished with exit code 0
