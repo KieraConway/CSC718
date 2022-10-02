@@ -20,6 +20,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <time.h>
 
 #include <assert.h>
 #include <pthread.h>
@@ -43,7 +44,7 @@ int connect_amount;                         //total connections made
 void ThreadHandler(int * thread_data);
 int AcceptConnection(int thread_number);
 int Communicator(int socket_fd);
-void usage();
+void Usage();
 /** ----------------------------- Functions ----------------------------- **/
 
 /*****************************************************
@@ -59,6 +60,8 @@ void usage();
 
 int main(int argc, char *argv[]) {
     /*** Function Initialization ***/
+    clock_t start = clock();
+
     /* Socket Variables */
     int *opt;								//socket option value
     struct sockaddr_in server_addr;			//server address
@@ -66,7 +69,7 @@ int main(int argc, char *argv[]) {
     /* Thread Variables */
     pthread_t threadIDs[maxThreads];		//thread IDS
     int thread[maxThreads][2];				//thread number, max connections
-    int max_connections = 3;				//maximum number of connections for each thread
+    int maxConnections = 3;				    //maximum number of connections for each thread
 
     /* Socket Init */
     opt = (int *) malloc(sizeof(int));		//allocate storage
@@ -108,13 +111,13 @@ int main(int argc, char *argv[]) {
                 break;
 
             case 'c':
-                maxThreads = atoi(optarg);
+                maxConnections = atoi(optarg);
                 break;
 
             case 'h':
 
             default:
-                usage();
+                Usage();
                 exit(0);
         }
         input = getopt( argc, argv, "hp:c:");
@@ -218,7 +221,7 @@ int main(int argc, char *argv[]) {
     /*** Start Threads ***/
     for (int i = 0; i < maxThreads; i++) {
         thread[i][0] = i;					//save thread number
-        thread[i][1] = max_connections;		//save max connections
+        thread[i][1] = maxConnections;		//save max connections
 
         if (pthread_create(&threadIDs[i], NULL,
                            (void *(*)(void *)) &ThreadHandler,
@@ -244,13 +247,20 @@ int main(int argc, char *argv[]) {
     /*** Display Final Data ***/
 
     printf("\n\n--------------------------\n"
+           "  Final Connection Data\n"
+           "- - - - - - - - - - - - - \n"
            "> Total Messages: %d\n"
-           "> > Sent: %d\n"
-           "> > Receieved: %d\n\n",
+           "  > Sent: %d\n"
+           "  > Received: %d\n\n",
            messages[SENT] + messages[RECV], messages[SENT], messages[RECV]);
     printf("> Total Connections: %d\n"
            "--------------------------\n\n",
            connect_amount);
+
+    /*** Calculate Runtime ***/
+    clock_t end = clock();
+    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
+    printf("<Program Runtime: %.4fs>", time_spent);
 
     /*** Program End ***/
     return 0;
@@ -272,12 +282,12 @@ void ThreadHandler(int * thread_data){
     /*** Function Initialization ***/
     /* Thread Variables */
     int thread = thread_data[0];			//copy thread number
-    int max_connections = thread_data[1];	//copy max connections
+    int maxConnections = thread_data[1];	//copy max connections
 
     int count = 0;							//number of connections
 
     /*** Run Thread for n Connections ***/
-    while (count < max_connections){
+    while (count < maxConnections){
 
         /*** Display Waiting Message ***/
         sem_wait(&display);                                     	//access display semaphore
@@ -293,7 +303,7 @@ void ThreadHandler(int * thread_data){
         if((socket_fd = AcceptConnection(thread)) != -1){
 
 
-            /*** Receive Connection ***/
+            /*** Communicate over Connection ***/
             Communicator(socket_fd);
 
             /*** Update Counters ***/
@@ -351,7 +361,7 @@ int AcceptConnection(int thread_number){
         /*** Display Received Update ***/
         sem_wait(&display);							//access display semaphore
 
-        printf("> Thread %d Received connection from %s\n",
+        printf("\n> Thread %d Received Connection from %s\n\n",
                thread_number, inet_ntoa(socket_addr.sin_addr));
 
         sem_post(&display);							//release display semaphore
@@ -377,7 +387,7 @@ int AcceptConnection(int thread_number){
 
 /* ------------------------------------------------------------------------
   Name -            Communicator
-  Purpose -         Communicates across connection accepted
+  Purpose -         Communicates across accepted connections
                     by AcceptConnection()
   Parameters -      socket_fd: socket file descriptor
   Returns -          0: Success
@@ -462,11 +472,11 @@ int Communicator(int socket_fd){
     return 0;
 }
 
-void usage(){
+void Usage(){
     printf("\nmyhttpd2, a multithreaded webserver\n"
            "ver 2.0, 2022\n"
            "Usage: myhttpd2 -h -c max_connections -p port_number\n"
-           "	-h: display usage summary\n"
-           "	-c: change max thread connections. Default = 3 | example: -c 5\n"
-           "	-p: change port number. Default = 8080 | example: -p 8080 \n\n");
+           "	-h: display Usage summary\n"
+           "	-c: change max thread connections   Default: 3      |   example: -c 3 \n"
+           "	-p: change port number              Default: 8080   |   example: -p 8080 \n\n");
 }

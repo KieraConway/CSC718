@@ -12,19 +12,22 @@ Compile:
         > make clean
             rm -f myhttpd2
 
+
 Usage:
 
     myhttpd2 -h -c max_connections -p port_number
 
         -h: display usage summary
-        -c: change max thread connections.
+        -c: change max thread connections
             Default: 3
             Example: myhttpd2 -c 5
-        -p: change port number.
+
+        -p: change port number
             Default: 8080
             Example: myhttpd2 -p 8080
 
     Note: All Arguments are Optional
+
 
 Contents:
 
@@ -43,38 +46,52 @@ Notes:
 	-	Client can be simulated using http://localhost:<PortNumber>/
 	    Example: http://localhost:8080/
 
-	-   Running time depends on consistency of client request. A filled backlog will return an average run time of
+	-   Running time depends on frequency of client request and max thread
+	    connections. A filled backlog with 5 max connections per thread (the
+	    default) will return an average run time of 0.002 seconds. Runtime is
+	    printed at end of each program.
+
+	-   Example output can be found in file exampleOutput.txt.
+	    Expected program output:
+	        > Thread X Waiting for a Connection...
+	        > Thread X Received Connection from Y
+	        > Received Message Data
+	            > Bytes Received
+                > String Received
+            > Sent Message Data
+                > Bytes Sent
+                > String Sent
+            > Final Stats
+                > Total Messages
+                    > Total Sent
+                    > Total Received
+                > Total Connections
+
 
 Overview of Functions:
-	Tables.c:
-		Functions for Processes:
+    main()                  Program starting point.
+                                (1) Handles Socket and Thread Initialization
+                                (2) Parses Program Arguments
+                                (3) Handles Socket Creation, Options, Binding,
+                                    and Listening
+                                (4) Creates Threads
+                                (5) Joins Threads
+                                (6) Releases Semaphores
+                                (7) Displays Final Data
+                                (8) Calculates Runtime
 
-			ProcessInit() 	 	This functions handles two things:
-									(1) Initializing a UsrProcTable slot to -1
-									(2) Removing a process from the UsrProcTable.
+    ThreadHandler()         Handles Threads
+                                (1) Begins Thread Run Loop
+                                (2) Accepts Connection by calling AcceptConnection()
+                                (3) Communicate over Connection by calling
+                                    Communicator()
+                                (4) Update Global Counters
 
-			AddToProcTable()	Adds a new process to the UsrProcTable and updates
-								the status to newStatus
+    AcceptConnection()      Accepts Connection from listen() backlog and performs
+                            error check
 
-			GetProcIndex		Returns the process position inside UsrProcTable
-								based on the passed in PID
+    Communicator()          Communicates across accepted connections and displays
+                            send/receive message data
 
-		Functions for Semaphores:
+    Usage()                 Displays program usage information. Access using -h
 
-			SemaphoreInit()		This functions handles two things:
-									(1) Initializing a SemTable slot to -1
-									(2) Removing a semaphore from the SemTable.
-
-			AddToSemTable()		Adds a new semaphore to the SemTable and updates
-								the status to newStatus
-
-			GetSemIndex			Returns the semaphore position inside SemTable
-								based on the passed in SID
-
-	Lists.c:
-		Functions for Processes:
-			ListIsFull()        - 	Checks if a process or sem list is full.
-			ListIsEmpty()       - 	Checks if a process or sem list is empty.
-			InitializeList()    - 	Initializes the process list.
-			AddProcessLL()      - 	Adds a process to the process list.
-			RemoveProcessLL()   - 	Removed the head process from the process list.
