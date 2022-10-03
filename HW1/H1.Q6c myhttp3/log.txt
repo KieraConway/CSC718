@@ -1,0 +1,570 @@
+> myhttpd2 server listening on port 8080
+
+> Thread 0 Waiting for a Connection...
+
+> Thread 1 Waiting for a Connection...
+
+> Thread 2 Waiting for a Connection...
+
+> Thread 3 Waiting for a Connection...
+
+> Thread 4 Waiting for a Connection...
+
+> Thread 0 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 0 Waiting for a Connection...
+
+> Thread 1 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 1 Waiting for a Connection...
+
+> Thread 2 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 2 Waiting for a Connection...
+
+> Thread 3 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 3 Waiting for a Connection...
+
+> Thread 0 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 0 Waiting for a Connection...
+
+> Thread 1 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 1 Waiting for a Connection...
+
+> Thread 4 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Waiting for a Connection...
+
+> Thread 3 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 3 Waiting for a Connection...
+
+> Thread 2 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 2 Waiting for a Connection...
+
+> Thread 0 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 1 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Waiting for a Connection...
+
+> Thread 3 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 2 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+> Thread 4 Received Connection from 127.0.0.1
+
+============================
+Bytes Received: 442
+String Received:
+
+GET / HTTP/1.1
+Host: localhost:8080
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:102.0) Gecko/20100101 Firefox/102.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+DNT: 1
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Sec-Fetch-Dest: document
+Sec-Fetch-Mode: navigate
+Sec-Fetch-Site: none
+Sec-Fetch-User: ?1
+
+
+============================
+============================
+Bytes Sent: 137
+String Sent:
+
+HTTP/1.1 200 OK
+Server: demo
+Content-Length: 37
+Connection: close
+Content-Type: html
+
+<html><body>Welcome to my first page!</body></html>
+============================
+
+
+--------------------------
+  Final Connection Data
+- - - - - - - - - - - - - 
+> Total Messages: 30
+  > Sent: 15
+  > Received: 15
+
+> Total Connections: 15
+--------------------------
+
+<Program Runtime: -0.0031s>
+
