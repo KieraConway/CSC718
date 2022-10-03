@@ -10,31 +10,60 @@
     Note: Simulate client at http://localhost:8080
 ------------------------------------------------------------------------ */
 
+//todo: add to readme
+// url of used website
+//
+// ~/.gdbinit
+//set detach-on-fork off
+//set follow-fork-mode child
+//
+// must run as root
+// // // // // // //
+//todo: if time
+//  add daemon as option -d
+//  add current time to logfile
+//
+
+
 /* Standard Libraries */
 #include <stdio.h>
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
-//#include <errno.h>
-#include <iostream>     #todo: comment out after FILE removal
-#include <unistd.h>
+#include <errno.h>
+#include <iostream>
 #include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
 
-//
-//#include <arpa/inet.h>
-//#include <netinet/in.h>
-//#include <sys/socket.h>
-//#include <time.h>
-//
-//#include <assert.h>
-//#include <pthread.h>
-//#include <semaphore.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+
+#include <assert.h>
+#include <pthread.h>
+#include <semaphore.h>
+
+/** ----------------------------- Constants ----------------------------- **/
+int SENT = 0;
+int RECV = 1;
+
+/** ----------------------------- Global ----------------------------- **/
+int hostPort = 8080;
+int maxThreads = 5;
+int server_fd;                              //server file descriptor
+sem_t mutex;                                //semaphore mutex
+sem_t display;                              //semaphore display
+sem_t accepting;                            //semaphore accepting
+int messages[2];                            //sent, received
+int connect_amount;                         //total connections made
+
 
 int main(int argc, char *argv[]) {
 
     /*** Function Initialization ***/
     pid_t pid = 0;      //process id
     pid_t sid = 0;      //session id
-    FILE *fp= NULL;     //file pointer for log file
+    FILE *logFile;           //file pointer for log file
 
     /*** Create Child Process ***/
     // fork() Return Values
@@ -69,29 +98,35 @@ int main(int argc, char *argv[]) {
         exit(-1);
     }
 
-    //
-    // Child Process is now a Daemon Process
-    //
+    //////////////////////////////////////////////
+    //// Child Process is now a Daemon Process ///
+    //////////////////////////////////////////////
 
     /*** Update Configuration ***/
     // Change Working Directory to Root
     chdir("/");
 
-    // Eliminate Error Reporting Methods
+    // Create Log file to Forward Error Reporting
+    if ((logFile = fopen ("log.txt", "w+")) == NULL) {
+        fprintf(stdout,
+                "Log Error: Unable to create log file\n<%s>\n\n"
+                "Terminating Program ...\n\n",
+                strerror(errno));		            //print error message
+
+        exit(-1);
+    }
+
+    // Eliminate Visible Error Reporting Methods
     close(STDIN_FILENO);
     close(STDOUT_FILENO);
     close(STDERR_FILENO);
 
-    // Forward Error Reporting to Log File
-    fp = fopen ("Log.txt", "w+");
-
     /*** Call Main Daemon Function ***/
+    for (int i = 0; i < 10; i++){
+        fprintf(logFile, "testing file output\n");		//print error message
+    }
 
-        //            Change the working directory of the daemon process to root and close stdin, stdout and stderr file descriptors.
-        //            Let the main logic of daemon process run.
-        // Enter multithreader here?
-
-
-    fclose(fp); //close logfile
-    return (0);         //program end
+    fclose(logFile); //close logfile
+    exit(0);
+    //return (0);         //program end
 }
