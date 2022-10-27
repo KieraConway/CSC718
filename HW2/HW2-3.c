@@ -128,7 +128,7 @@ int main(int argc, char *argv[]) {
 
     /* Iterate through Section */
     bool found_Next = false;            //specifies if next consecutive set has been found
-    for(int i = process.start; i <= process.end|| !found_Next; i+=2){
+    for(int i = process.start; (i <= process.end|| !found_Next) && i <= N; i+=2){
 
         /* Determine if value is Prime */
         if (isPrime(i)) {
