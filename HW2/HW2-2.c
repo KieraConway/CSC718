@@ -81,30 +81,6 @@ int main(int argc, char *argv[]) {
     int total_con = 0;		//total consecutive 'global' count
 
     int numProcs, rank, nameLen;
-    char procName[MPI_MAX_PROCESSOR_NAME];
-
-
-//    /*** Process Arguments ***/
-//    int input = 0;
-//    input = getopt( argc, argv,"hn:" );
-//
-//    if (input != -1)
-//    {
-//        switch (input)
-//        {
-//            /* Change Port */
-//            case 'n':
-//                N = atoi(optarg);
-//                break;
-//
-//                /* Access Help Menu */
-//            case 'h':
-//
-//            default:
-//                Usage();
-//                exit(0);
-//        }
-//    }
 
     /* Begin Parallelization */
     MPI_Init(&argc, &argv);                         //Initializes the MPI execution environment
@@ -114,7 +90,6 @@ int main(int argc, char *argv[]) {
 
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);           //Determines the rank (PID) of the calling process
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);       //Determines size of the processor group associated
-    MPI_Get_processor_name(procName, &nameLen);     //Gets the name of the processor
 
     /* Initialize Process Information */
     proc process;
@@ -126,25 +101,22 @@ int main(int argc, char *argv[]) {
     FindRange(&process, N, numProcs);
 
     /* Iterate through Section */
-
-    for (int index = process.start; index <= process.end; index++) {
+    for(int i = rank; i <= process.end; i+=2){
         /* Determine if value is Prime */
-        if (isPrime(index)) {
+        if (isPrime(i)) {
 
-            if (index != 2) {
-                next_Val = index;                               //save i as next
+            if (i != 2) {
+                next_Val = i;                               //save i as next
 
                 /* Determine if Primes are Consecutive */
-                if (index == 3 || next_Val - prev_Val == 2) {
+                if (i == 3 || next_Val - prev_Val == 2) {
                     local_con++;                                //increase consecutive counter
 
                 }
             }
-            prev_Val = index;                                   //save i as previous
+            prev_Val = i;                                   //save i as previous
         }
     }
-
-
 
     MPI_Reduce (&local_con,
                 &total_con,
@@ -168,14 +140,11 @@ int main(int argc, char *argv[]) {
             fflush (stdout);
         }
 
-        printf ("Elapsed time: %f.\n", elapsed_time);		//print elapsed time
+        printf("\n<Program Runtime: %.4fs>\n\n", elapsed_time);		//print elapsed time
         fflush (stdout);
     }
 
     return 0;
-
-
-
 }
 
 /* ------------------------------------------------------------------------
@@ -228,6 +197,7 @@ int FindRange(pProc p, int max, int numProcs){
     p->start = FIND_START(p->pid, max, numProcs);
     p->end = (FIND_END(p->pid, max, numProcs));
 
+    /* Set Start and End Values to Odd */
     if(p->start % 2 == 0){    //if starts on an even value
         p->start+=1;          //plus 1 to increment to next odd
     }
