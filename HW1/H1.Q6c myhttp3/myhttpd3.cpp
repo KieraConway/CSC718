@@ -10,17 +10,6 @@
     Note: Simulate client at http://localhost:8080
 ------------------------------------------------------------------------ */
 
-//todo: add to readme
-// url of used website
-//
-// ~/.gdbinit
-//set detach-on-fork off
-//set follow-fork-mode child
-//
-// must run as root
-
-
-
 /* Standard Libraries */
 #include <stdio.h>
 #include <stdlib.h>
@@ -50,7 +39,7 @@ int maxConnections = 3;				        //maximum number of connections for each thre
 int server_fd;                              //server file descriptor
 FILE *logFile;                              //file pointer for log file
 sem_t mutex;                                //semaphore mutex
-sem_t display;                              //semaphore display //TODO: CHANGE NAME TO LOG? FILE?
+sem_t logging;                              //semaphore logging
 sem_t accepting;                            //semaphore accepting
 int messages[2];                            //sent, received
 int connect_amount;                         //total connections made
@@ -168,7 +157,7 @@ int main(int argc, char *argv[]) {
     /* Create Log file to Forward Error Reporting */
     if ((logFile = fopen (fileName, "w+")) == NULL) {
         fprintf(stdout,
-                "Log Error: Unable to create log file\n<%s>\n\n"
+                "Log Error: Unable to create Log file\n<%s>\n\n"
                 "Terminating Program ...\n\n",
                 strerror(errno));				//print error message
 
@@ -184,7 +173,7 @@ int main(int argc, char *argv[]) {
     DaemonMain();
 
     /*** Program Termination ***/
-    /* Display Final Data */
+    /* Log Final Data */
     fprintf(logFile,
             "\n\n--------------------------\n"
             "  Final Connection Data\n"
@@ -247,10 +236,10 @@ void DaemonMain(){
             exit(-1);
         }
 
-        // Displaying to Screen Semaphore
-        if ((sem_init(&display, 0, i)) < 0) {
+        // Updating Log Semaphore
+        if ((sem_init(&logging, 0, i)) < 0) {
             fprintf(logFile,
-                    "Semaphore Error: Unable to create semaphore display\n<%s>\n",
+                    "Semaphore Error: Unable to create semaphore logging\n<%s>\n",
                     strerror(errno));		//print error message
             exit(-1);
         }
@@ -319,9 +308,7 @@ void DaemonMain(){
                 "<%s>\n",
                 hostPort, strerror(errno));                    		//print error message
         exit(-1);
-
     }
-
 
     /*** Listen for Incoming Connection Requests ***/
     //  listen(int sockfd, int backlog);
@@ -351,11 +338,11 @@ void DaemonMain(){
                            &thread[i]) != 0) {                      //attempt thread creation
 
             // Log Error Message
-            sem_wait(&display);										//access display semaphore
+            sem_wait(&logging);										//access logging semaphore
             fprintf(logFile,
                     "Thread Error: Unable to create thread\n<%s>\n",
                     strerror(errno));                               //print error message
-            sem_post(&display);										//release display semaphore
+            sem_post(&logging);										//release logging semaphore
 
             exit(-1);
         }
@@ -368,7 +355,7 @@ void DaemonMain(){
 
     /*** Release Semaphores ***/
     sem_destroy(&mutex);
-    sem_destroy(&display);
+    sem_destroy(&logging);
     sem_destroy(&accepting);
 
     return;
@@ -395,10 +382,10 @@ void ThreadHandler(int * thread_data){
 
     /*** Run Thread for n Connections ***/
     while (count < max_connections){
-        /*** Display Waiting Message ***/
-        sem_wait(&display);                                     	//access display semaphore
+        /*** Log Waiting Message ***/
+        sem_wait(&logging);                                     	//access logging semaphore
         fprintf(logFile,"\n> Thread %d Waiting for a Connection...\n", thread);
-        sem_post(&display);                                     	//release display semaphore
+        sem_post(&logging);                                     	//release logging semaphore
 
         //
         // Simulate Client Here: http://localhost:8080/
@@ -458,12 +445,12 @@ int AcceptConnection(int thread_number){
         sem_post(&accepting);						//release accepting semaphore
 
 
-        /*** Display Received Update ***/
-        sem_wait(&display);							//access display semaphore
+        /*** Log Received Update ***/
+        sem_wait(&logging);							//access logging semaphore
         fprintf(logFile,
                 "\n> Thread %d Received Connection from %s\n\n",
                 thread_number, inet_ntoa(socket_addr.sin_addr));
-        sem_post(&display);							//release display semaphore
+        sem_post(&logging);							//release logging semaphore
 
         /*** Success ***/
         return socket_fd;
@@ -471,12 +458,12 @@ int AcceptConnection(int thread_number){
     else {
 
         // Connection Failed
-        /*** Display Received Message ***/
-        sem_wait(&display);							//access display semaphore
+        /*** Log Received Message ***/
+        sem_wait(&logging);							//access logging semaphore
         fprintf(logFile,
                 "Connection Error: Unable to accept connection request\n<%s>\n",
                 strerror(errno));					//print error message
-        sem_post(&display);							//release display semaphore
+        sem_post(&logging);							//release logging semaphore
 
         return(-1);
     }
@@ -505,25 +492,25 @@ int Communicator(int socket_fd){
     if((bytes = recv(socket_fd, buffer,
                      buffer_len, 0)) == -1){			//attempt receive
 
-        /*** Display Received Error ***/
-        sem_wait(&display);								//access display semaphore
+        /*** Log Received Error ***/
+        sem_wait(&logging);								//access logging semaphore
         fprintf(logFile,
                 "Receive Error: Unable to receive data\n<%s>\n",
                 strerror(errno));						//print error message
-        sem_post(&display);								//release display semaphore
+        sem_post(&logging);								//release logging semaphore
 
         return(-1);
     }
 
     /*** Log Received Data ***/
-    sem_wait(&display);							//access display semaphore
+    sem_wait(&logging);							//access logging semaphore
     fprintf(logFile,
             "============================\n"
             "Bytes Received: %d\n"
             "String Received:\n\n"
             "%s\n"
             "============================\n",
-            bytes, buffer);						//display received data
+            bytes, buffer);						//log received data
     strcpy(buffer,
            "HTTP/1.1 200 OK\n"
            "Server: demo\n"
@@ -531,7 +518,7 @@ int Communicator(int socket_fd){
            "Connection: close\n"
            "Content-Type: html\n\n"
            "<html><body>Welcome to my first page!</body></html>");      //update buffer
-    sem_post(&display);							//release display semaphore
+    sem_post(&logging);							//release logging semaphore
 
     /*** Update Global Counter ***/
     sem_wait(&mutex);			//access mutex semaphore
@@ -542,25 +529,25 @@ int Communicator(int socket_fd){
     if ((bytes = send(socket_fd, buffer,
                       strlen(buffer), 0)) == -1){				//attempt send
 
-        /*** Display Send Error ***/
-        sem_wait(&display);                                     //access display semaphore
+        /*** Log Send Error ***/
+        sem_wait(&logging);                                     //access logging semaphore
         fprintf(logFile,
                 "Send Error: Unable to transmit data\n<%s>\n",
                 strerror(errno));								//print error message
-        sem_post(&display);                                     //release display semaphore
+        sem_post(&logging);                                     //release logging semaphore
 
         return(-1);
     }
-    /*** Display Sent Data ***/
-    sem_wait(&display);							//access display semaphore
+    /*** Log Sent Data ***/
+    sem_wait(&logging);							//access logging semaphore
     fprintf(logFile,
             "============================\n"
             "Bytes Sent: %d\n"
             "String Sent:\n\n"
             "%s\n"
             "============================\n",
-            bytes, buffer);						//display sent data
-    sem_post(&display);							//release display semaphore
+            bytes, buffer);						//logging sent data
+    sem_post(&logging);							//release logging semaphore
 
     /*** Update Global Counter ***/
     sem_wait(&mutex);							//access mutex semaphore
@@ -575,7 +562,7 @@ void Usage(){
     printf("\nmyhttpd2, a multithreaded webserver\n"
            "ver 2.0, 2022\n"
            "Usage: myhttpd2 -h -c max_connections -p port_number\n"
-           "	-h: display Usage summary\n"
+           "	-h: Display Usage summary\n"
            "	-c: change max thread connections   Default: 3        |   example: -c 3 \n"
            "	-f: change log file name            Default: log.txt  |   example: -f fileName.txt \n"
            "	-p: change port number              Default: 8080     |   example: -p 8080 \n\n");

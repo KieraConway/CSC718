@@ -77,18 +77,24 @@ int main(int argc, char *argv[]) {
 
     /* Thread Init */
     for (int i = 0; i < maxThreads; i++) {
+
+        // Mutex Semaphore
         if ((sem_init(&mutex, 0, i)) < 0) {
             fprintf(stderr,
                     "Semaphore Error: Unable to create semaphore mutex\n<%s>\n",
                     strerror(errno));		//print error message
             exit(-1);
         }
+
+        // Displaying to Screen Semaphore
         if ((sem_init(&display, 0, i)) < 0) {
             fprintf(stderr,
                     "Semaphore Error: Unable to create semaphore display\n<%s>\n",
                     strerror(errno));		//print error message
             exit(-1);
         }
+
+        // Accepting Connections Semaphore
         if ((sem_init(&accepting, 0, i)) < 0) {
             fprintf(stderr,
                     "Semaphore Error: Unable to create semaphore accepting\n<%s>\n",
@@ -227,9 +233,13 @@ int main(int argc, char *argv[]) {
                            (void *(*)(void *)) &ThreadHandler,
                            &thread[i]) != 0) {                      //attempt thread creation
 
+            // Display Error Message
+            sem_wait(&display);                                     	//access display semaphore
             fprintf(stderr,
                     "Thread Error: Unable to create thread\n<%s>\n",
                     strerror(errno));                               //print error message
+            sem_post(&display);                                     	//release display semaphore
+
             exit(-1);
         }
     }
@@ -260,7 +270,7 @@ int main(int argc, char *argv[]) {
     /*** Calculate Runtime ***/
     clock_t end = clock();
     double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("<Program Runtime: %.4fs>", time_spent);
+    printf("<Program Runtime: %.4fs>\n\n", time_spent);
 
     /*** Program End ***/
     return 0;
@@ -301,7 +311,6 @@ void ThreadHandler(int * thread_data){
         /*** Accept Connection ***/
         int socket_fd;
         if((socket_fd = AcceptConnection(thread)) != -1){
-
 
             /*** Communicate over Connection ***/
             Communicator(socket_fd);
@@ -381,9 +390,8 @@ int AcceptConnection(int thread_number){
 
         return(-1);
     }
-
-
 }
+
 
 /* ------------------------------------------------------------------------
   Name -            Communicator

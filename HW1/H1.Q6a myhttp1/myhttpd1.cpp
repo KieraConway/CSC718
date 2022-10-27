@@ -56,13 +56,10 @@ int main(int argc, char *argv[])
 
 	int hsock;
 	int * p_int ;
-	int err;
 	int socketfd;
 
 	socklen_t addr_size = 0;
-	int* csock;
 	sockaddr_in sadr;
-	pthread_t thread_id=0;
 
 	int opt = 0;
 	opt = getopt( argc, argv,"dhl:p:r:t:n:s:" );
@@ -143,6 +140,7 @@ int main(int argc, char *argv[])
 			printf("Received connection from %s\n",inet_ntoa(sadr.sin_addr));
 
             /***
+             * Conway, Kiera:
              * Added Function Call to Receive Messages
             ***/
             httpHandler(socketfd);
