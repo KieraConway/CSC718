@@ -84,27 +84,27 @@ int main(int argc, char *argv[]) {
     char procName[MPI_MAX_PROCESSOR_NAME];
 
 
-    /*** Process Arguments ***/
-    int input = 0;
-    input = getopt( argc, argv,"hn:" );
-
-    if (input != -1)
-    {
-        switch (input)
-        {
-            /* Change Port */
-            case 'n':
-                N = atoi(optarg);
-                break;
-
-                /* Access Help Menu */
-            case 'h':
-
-            default:
-                Usage();
-                exit(0);
-        }
-    }
+//    /*** Process Arguments ***/
+//    int input = 0;
+//    input = getopt( argc, argv,"hn:" );
+//
+//    if (input != -1)
+//    {
+//        switch (input)
+//        {
+//            /* Change Port */
+//            case 'n':
+//                N = atoi(optarg);
+//                break;
+//
+//                /* Access Help Menu */
+//            case 'h':
+//
+//            default:
+//                Usage();
+//                exit(0);
+//        }
+//    }
 
     /* Begin Parallelization */
     MPI_Init(&argc, &argv);                         //Initializes the MPI execution environment
