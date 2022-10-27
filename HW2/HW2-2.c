@@ -226,5 +226,22 @@ void Usage(){
 int FindRange(pProc p, int max, int numProcs){
 
     p->start = FIND_START(p->pid, max, numProcs);
-    p->end = (FIND_END(p->pid, max, numProcs)+1);   //find end plus 1 to ensure overlap
+    p->end = (FIND_END(p->pid, max, numProcs));
+
+    if(p->start % 2 == 0){    //if starts on an even value
+        p->start+=1;          //plus 1 to increment to next odd
+    }
+
+    if(p->end != max){      //if not last value
+
+        if(p->end % 2 == 0){    //if it ends on an even value
+            p->end+=1;          //plus 1 to increment to next odd
+        }
+        else{
+            p->end+=2;          //plus 2 to increment to next odd
+
+        }
+    }
+
+    printf("%d: %d-%d\n", p->pid, p->start, p->end);
 }
