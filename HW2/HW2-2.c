@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
     FindRange(&process, N, numProcs);
 
     /* Iterate through Section */
-    for(int i = rank; i <= process.end; i+=2){
+    for(int i = process.start; i <= process.end; i+=2){
         /* Determine if value is Prime */
         if (isPrime(i)) {
 
