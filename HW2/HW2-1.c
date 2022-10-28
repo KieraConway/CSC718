@@ -32,7 +32,7 @@
 int N = 1000000;
 
 /** ----------------------------- Global ----------------------------- **/
-int total_cons = 0;		//total consecutive
+int total_cons = 0;					//total consecutive
 
 /** ----------------------------- Prototypes ---------------------------- **/
 bool isPrime(int num);
@@ -53,10 +53,10 @@ void Usage();
 int main(int argc, char *argv[]) {
 
     /*** Function Initialization ***/
-    int prev_Val = 0;
-    int next_Val = 0;
+    int curr_Val = 0;               //current prime value
+    int prev_Val = 0;               //previous prime value
 
-    clock_t start = clock();    	//program start time
+    clock_t start = clock();		//program start time
 
     /*** Process Arguments ***/
     int input = 0;
@@ -66,7 +66,7 @@ int main(int argc, char *argv[]) {
     {
         switch (input)
         {
-            /* Change Port */
+            /* Change Value for N */
             case 'n':
                 N = atoi(optarg);
                 break;
@@ -80,22 +80,20 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /* Iterate through 0 to N */
-    for (int i = 0; i < N; i++) {
+    /* Iterate 0 through N */
+    for (int i = 1; i < N; i+=2 ) {
 
         /* Determine if value is Prime */
         if (isPrime(i)) {
 
-            if (i != 2){
-                next_Val = i;                               //save i as next
+			curr_Val = i;                               //save i as current value
 
-                /* Determine if Primes are Consecutive */
-                if (i == 3 || next_Val - prev_Val == 2) {
-                    total_cons++;                           //increase consecutive counter
-                    //printf("%d: %d, %d\n", total_cons, prev_Val, next_Val);
-                }
-            }
-                prev_Val = i;                               //save i as previous
+			/* Determine if Primes are Consecutive */
+			if (i == 3 || curr_Val - prev_Val == 2) {
+				total_cons++;                           //increase consecutive counter
+			}
+
+            prev_Val = i;                               //save i as previous
         }
 
     }
@@ -113,8 +111,8 @@ int main(int argc, char *argv[]) {
     clock_t end = clock();
     double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
     printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
-	
-	return 0;
+
+    return 0;
 }
 
 /* ------------------------------------------------------------------------

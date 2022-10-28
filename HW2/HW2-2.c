@@ -35,9 +35,9 @@ typedef struct procInfo proc;
 typedef struct procInfo * pProc;
 
 struct procInfo {
-    int pid;            //process rank/pid
-    int start;         //process start
-    int end;           //process end
+    int pid;				//process rank/pid
+    int start;				//process start
+    int end;				//process end
 };
 
 /** ----------------------------- Macros ---------------------------- **/
@@ -53,11 +53,10 @@ struct procInfo {
 /** ----------------------------- Constants ----------------------------- **/
 int N = 1000000;
 
-/** ----------------------------- Global ----------------------------- **/
 /** ----------------------------- Prototypes ---------------------------- **/
 bool isPrime(int num);
-void Usage();
-int FindRange(pProc p, int max, int numProcs);
+void FindRange(pProc p, int max, int numProcs);
+
 /** ----------------------------- Functions ----------------------------- **/
 
 /*****************************************************
@@ -73,23 +72,23 @@ int FindRange(pProc p, int max, int numProcs);
 int main(int argc, char *argv[]) {
 
     /*** Function Initialization ***/
-    int prev_Val = 0;
-    int next_Val = 0;
+    int curr_Val = 0;               //current prime value
+    int prev_Val = 0;               //previous prime value
+	
+    int local_con = 0;				//total consecutive local count
+    int total_con = 0;				//total consecutive 'global' count
+
     double elapsed_time;
-
-    int local_con = 0;		//total consecutive local count
-    int total_con = 0;		//total consecutive 'global' count
-
     int numProcs, rank, nameLen;
 
-    /* Begin Parallelization */
-    MPI_Init(&argc, &argv);                         //Initializes the MPI execution environment
-    MPI_Barrier (MPI_COMM_WORLD);					//Blocks caller until all processes in the communicator have called it
+    /* Parallelization Init */
+    MPI_Init(&argc, &argv);			//Initializes the MPI execution environment
+    MPI_Barrier (MPI_COMM_WORLD);	//Blocks caller until all processes in the communicator have called it
 
     elapsed_time = - MPI_Wtime();
 
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);           //Determines the rank (PID) of the calling process
-    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);       //Determines size of the processor group associated
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);		//Determines the rank (PID) of the calling process
+    MPI_Comm_size(MPI_COMM_WORLD, &numProcs);	//Determines size of the processor group associated
 
     /* Initialize Process Information */
     proc process;
@@ -102,18 +101,18 @@ int main(int argc, char *argv[]) {
 
     /* Iterate through Section */
     for(int i = process.start; i <= process.end; i+=2){
+		
         /* Determine if value is Prime */
         if (isPrime(i)) {
 
-            if (i != 2) {
-                next_Val = i;                               //save i as next
 
-                /* Determine if Primes are Consecutive */
-                if (i == 3 || next_Val - prev_Val == 2) {
-                    local_con++;                                //increase consecutive counter
+			curr_Val = i;                               	//save i as current
 
-                }
-            }
+			/* Determine if Primes are Consecutive */
+			if (i == 3 || curr_Val - prev_Val == 2) {
+				local_con++;                                //increase consecutive counter
+			}
+
             prev_Val = i;                                   //save i as previous
         }
     }
@@ -124,12 +123,13 @@ int main(int argc, char *argv[]) {
                 MPI_INT,
                 MPI_SUM,
                 0,
-                MPI_COMM_WORLD);                    //Reduces values on all processes within a group
-    elapsed_time += MPI_Wtime();                    //calculate elapsed time
+                MPI_COMM_WORLD);				//Reduces values on all processes within a group
+    elapsed_time += MPI_Wtime();				//Calculate elapsed time
 
-    MPI_Finalize();									//Terminates MPI execution environment
+    MPI_Finalize();								//Terminates MPI execution environment
 
-    if (!rank) {                                        //if process 0
+    if (!rank) {								//if process 0
+	
         /* Print Results */
         if (total_con == 1) {
             printf("There is only 1 instance of consecutive primes for all integers less than %d.\n", N);
@@ -178,31 +178,25 @@ bool isPrime(int num){
 }
 
 /* ------------------------------------------------------------------------
-  Name -            Usage
-  Purpose -         Prints Help Menu
-  Parameters -      None
-  Returns -         None
-  Side Effects -    None
+  Name -            FindRange
+  Purpose -         Finds range for process using block allocation
+  Parameters -      p:		  pointer to process structure
+					max:	  range max (N)
+					numProcs: number of process to split between	
+  Returns -         None: data is placed in process pointed to by p
+  Side Effects -    Process structure is updated
   ----------------------------------------------------------------------- */
-void Usage(){
-    printf("\nHW2-1.c, A Sequential Program for finding Consecutive Primes\n"
-           "ver 1.0, 2022\n"
-           "Usage: HW2-1 -h -n max_values\n"
-           "	-h: Display Usage summary\n"
-           "	-n: Change max value threshold   Default: 1,000,000    |   example: -n 1000 \n\n");
-}
-
-int FindRange(pProc p, int max, int numProcs){
+void FindRange(pProc p, int max, int numProcs){
 
     p->start = FIND_START(p->pid, max, numProcs);
     p->end = (FIND_END(p->pid, max, numProcs));
 
     /* Set Start and End Values to Odd */
-    if(p->start % 2 == 0){    //if starts on an even value
-        p->start+=1;          //plus 1 to increment to next odd
+    if(p->start % 2 == 0){    	//if starts on an even value
+        p->start+=1;         	//plus 1 to increment to next odd
     }
 
-    if(p->end != max){      //if not last value
+    if(p->end != max){      	//if not last value
 
         if(p->end % 2 == 0){    //if it ends on an even value
             p->end+=1;          //plus 1 to increment to next odd
