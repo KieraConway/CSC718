@@ -1,0 +1,241 @@
+<HTML>
+
+<!-- gprof_quick.html
+     1.31.99 msprauer - initial revision
+     3.2.99  msprauer - changed to include call graph
+
+-->
+
+<HEAD>
+
+<TITLE>EECS 380: gprof Quick-Start Guide</TITLE>
+
+</HEAD>
+
+
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000">
+
+<CENTER><H2>gprof Quick-Start Guide</H2></CENTER>
+
+<HR>
+
+gprof is a type of tool called a profiler.  Profiling allows you to learn
+where your program spent its time and which functions called which
+other functions while it was executing. This information can
+show you which pieces of your program are slower than you expected
+and might be candidates for rewriting to make your
+program execute faster.
+<P>
+
+In this QuickStart guide, we will focus on finding the <I>bottleneck</I>
+(the part of the code that takes the longest to run) in a program.
+As an example, we will use the <tt>kruse</tt> program from Programming
+Assignment 1.
+
+<OL>
+
+  <LI> <B> Compiling for profiling </B> <BR>
+
+      Before you can profile your program, you must first recompile it
+      specifically for profiling.  To do so, add the <tt>-pg</tt>
+      argument to the compiler's command line.
+
+      <pre>
+      unix% g++ -g -pg -o kruse kruse.cc
+      </pre>
+
+      This creates an executable called <tt>kruse</tt> from the source
+      file <tt>kruse.cc</tt> with debugging and profiling turned on.
+
+      <P>
+
+      Another way to do this is to add <tt>-pg</tt> to the CFLAGS line
+      in the file called <tt>Makefile</tt>.
+
+    <P>
+
+  <LI> <B> Creating gmon.out </B> <BR>
+
+      Once your program has been compiled with profiling turned on,
+      running the program to completion causes a file named
+      <tt>gmon.out</tt> to be created in the current directory.
+      gprof works by analyzing data collected during the execution
+      of your program after your program has finished running.
+      <tt>gmon.out</tt> holds this data in a gprof-readable format.
+
+      <P>
+      Things to keep in mind:
+
+      <UL>
+        <LI>If <tt>gmon.out</tt> already exists,
+            it will be overwritten.
+        <LI>The program must exit normally.  Pressing control-c
+            or killing the process is <B>not</B> a normal exit.
+        <LI>Since you are trying to analyze your program in a real-world
+            situation, you should run the program exactly the same
+            way as you normally would (same inputs, command line
+            arguments, etc.).
+      </UL>
+
+    <P>
+
+
+  <LI> <B> Running gprof </B> <BR>
+
+      Run gprof like this:
+
+      <pre>
+      unix% gprof <I>program-name</I> [ <I>data-file</I> ] [ &gt; <I>output-file</I> ]
+      </pre>
+
+      If you don't specify the name of a data file, <tt>gmon.out</tt> is
+      assumed.  Following the gprof command with "<tt>&gt; output-file</tt>"
+      causes the output of gprof to be saved to <tt>output-file</tt> so you can
+      examine it later.
+
+      <P>
+      For this example, the program name is <tt>kruse</tt> and we will
+      save the output into a file called <tt>kruse.output</tt>:
+
+      <pre>
+      unix% gprof kruse &gt; kruse.output
+      </pre>
+
+    <P>
+
+
+  <LI> <B> Analyzing gprof's output </B> <BR>
+
+      After completing the last step, the gprof's analysis has been
+      saved into the <tt>kruse.output</tt> file.  You can use your
+      favorite text editor to examine this file.  By default, two kinds
+      of analysis are performed: the flat profile and the call graph.
+      Both types are explained in the following sections.
+
+    <P>
+
+  <LI> <B> Interpreting the flat profile </B> <BR>
+
+      The flat profile shows the total amount of time your program
+      spent executing each function.  At the end of the profile, you will see
+      a legend describing what each of the columns of numbers means.  Here
+      is some of the output from the flat profile:
+
+      <pre>
+      Flat profile:
+
+      Each sample counts as 0.01 seconds.
+        %   cumulative   self              self     total
+       time   seconds   seconds    calls  us/call  us/call  name
+       37.50      0.15     0.15    48000     3.12     3.12  Life::neighbor_count(int, int)
+       17.50      0.22     0.07                             _IO_do_write
+       10.00      0.26     0.04                             __overflow
+        7.50      0.29     0.03                             _IO_file_overflow
+        7.50      0.32     0.03                             _IO_putc
+        5.00      0.34     0.02       12  1666.67 14166.67  Life::update(void)
+        5.00      0.36     0.02                             stdiobuf::overflow(int)
+        5.00      0.38     0.02                             stdiobuf::sys_write(char const *, int)
+        2.50      0.39     0.01                             ostream::operator<<(char)
+        2.50      0.40     0.01                             internal_mcount
+        0.00      0.40     0.00       12     0.00     0.00  Life::print(void)
+        0.00      0.40     0.00       12     0.00     0.00  to_continue(void)
+        0.00      0.40     0.00        1     0.00     0.00  Life::initialize(void)
+        0.00      0.40     0.00        1     0.00     0.00  instructions(void)
+        0.00      0.40     0.00        1     0.00 170000.00  main
+      </pre>
+
+      Note that the functions <tt>mcount</tt> and <tt>profil</tt> (profil
+      does not appear in this listing) are part of the profiling aparatus;
+      their time gives a measure of the amount of overhead due to profiling.
+      Also note that functions like <tt>stdiobuf::sys_write</tt> and
+      <tt>_IO_do_write</tt> are part of the system libraries and not
+      directly part of your code.
+
+      <P>
+      In this output, we can see that 37.5% of <tt>kruse</tt>'s execution
+      time is spent in <tt>Life::neighbor_count</tt>.  This is the highest
+      percentage for any function in the program.  It is also worthwhile
+      to note that it gets called 48,000 times.  This is our first hint
+      that <tt>Life::neighbor_count</tt> might be the biggest bottleneck
+      in <tt>kruse</tt>.
+
+      <P>
+
+
+  <LI> <B> Interpreting the call graph </B> <BR>
+
+      The call graph shows how much time was spent in each function and its
+      children.  From this information, you can find functions that, while
+      they themselves may not have used much time, called other functions that
+      did use unusual amounts of time.  Like for the flat profile, a legend
+      appears after the call graph describing what each of the columns of
+      numbers means.
+
+      <P>
+
+      Here is some of the output from the call graph:
+
+      <pre>
+                             Call graph (explanation follows)
+
+
+        granularity: each sample hit covers 4 byte(s) for 2.50% of 0.40 seconds
+
+        index % time    self  children    called     name
+                        0.02    0.15      12/12          main [2]
+        [1]     42.5    0.02    0.15      12         Life::update(void) [1]
+                        0.15    0.00   48000/48000       Life::neighbor_count(int, int) [4]
+        -----------------------------------------------
+                        0.00    0.17       1/1           _start [3]
+        [2]     42.5    0.00    0.17       1         main [2]
+                        0.02    0.15      12/12          Life::update(void) [1]
+                        0.00    0.00      12/12          Life::print(void) [13]
+                        0.00    0.00      12/12          to_continue(void) [14]
+                        0.00    0.00       1/1           instructions(void) [16]
+                        0.00    0.00       1/1           Life::initialize(void) [15]
+        -----------------------------------------------
+                                                         <spontaneous>
+        [3]     42.5    0.00    0.17                 _start [3]
+                        0.00    0.17       1/1           main [2]
+        -----------------------------------------------
+                        0.15    0.00   48000/48000       Life::update(void) [1]
+        [4]     37.5    0.15    0.00   48000         Life::neighbor_count(int, int) [4]
+        -----------------------------------------------
+      </pre>
+
+
+      The lines full of dashes divide this table into <I>entries</I>, one for each
+      function. Each entry has one or more lines.
+      <P>
+      In each entry, the primary line is the one that starts with an index number
+      in square brackets. The end of this line says which function the entry is
+      for.
+      <P>
+      The preceding lines in the entry describe the callers of this function
+      and the following lines describe its subroutines (also called <I>children</I>
+      when we speak of the call graph).  If the caller of a function cannot be
+      determined, <tt>&lt;spontaneous&gt;</tt> is printed instead.
+      <P>
+      The entries are sorted by time spent in the function and its subroutines.
+      <P>
+      In this example, we see that the first entry is for <tt>Life::update</tt>, the
+      second entry is for <tt>main</tt>, and so on.  42.5% of the program's execution
+      time is spent in <tt>Life::update</tt> and its children.
+      <tt>Life::update</tt> only has one child, <tt>Life::neighbor_count</tt>.
+      In the fourth entry, we see that <tt>Life::neighbor_count</tt> consumes
+      37.5% of the program's execution time and has no children.  As in the flat
+      profile, the call graph shows that <tt>Life::neighbor_count</tt> was called
+      48,000 times.
+      <P>
+      Based on this information and what we observed in the flat profile, we can
+      conclude that <tt>Life::neighbor_count</tt> is the main bottleneck in
+      <tt>kruse</tt>.
+
+</OL>
+
+For more detailed information on gprof, check out
+<A HREF="https://sourceware.org/binutils/docs-2.16/gprof/">the gprof Manual</A>.
+
+</BODY>
+
+</HTML>
