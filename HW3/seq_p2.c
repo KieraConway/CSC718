@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------
-    seq_p1.c
+    seq_p2.c
 
     CSC 718
     Operating Systems & Parallel Programming
@@ -15,31 +15,31 @@
 //
 // // // // // // // //
 
+#include <omp.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include <time.h>
 
-#define INTERVALS 1000000
-
-int main(int arc, char* argv[])
+int main (int argc, char *argv[])
 {
 	/* Program Start Time */
 	clock_t start = clock();
 	
-	double area;		/* The final anser */
-	double ysum;		/* Sum of rectangle heights */
-	double xi;			/* Midpoint of interval */
-	int i;	
+	int   i, n;
+	float a[1000000], b[1000000], sum;
 
-	ysum = 0.0;
+	/* Some initializations */
+	n = 1000000;
+	for (i=0; i < n; i++)
+		a[i] = b[i] = i * 1.0;
 
-	for (i=0; i < INTERVALS; i++)
-	{
-		xi=((1.0/INTERVALS)*(i+0.5));
-		ysum+=4.0/(1.0+xi*xi);
-	}
+	sum = 0.0;
 
-	area = ysum * (1.0/INTERVALS);
-	printf("pi is %13.11f\n", area);
+  	for (i=0; i < n; i++)
+		sum = sum + (a[i] * b[i]*b[i]*b[i]);
+
+	printf("   Sum = %f\n",sum);
 	
 	/* Calculate Runtime */
     clock_t end = clock();
