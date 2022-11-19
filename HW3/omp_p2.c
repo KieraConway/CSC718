@@ -11,7 +11,7 @@
 
 // // // // // // // //
 //
-//	Sequential Program
+//	OMP Program
 //
 // // // // // // // //
 
@@ -19,32 +19,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
+
+#define N 1000000
 
 int main (int argc, char *argv[])
 {
-	/* Program Start Time */
-	clock_t start = clock();
 	
 	int   i, n;
-	float a[1000000], b[1000000], sum;
+	int tid, nthreads;
+	float a[N], b[N], sum, localsum;
+	double start, stop;
+	
+	/* Fork Threads */
+	omp_set_num_threads(5);
+	#pragma omp parallel shared(a,b,sum) private(tid, i, localsum)
+	{
+	
+		tid = omp_get_thread_num();
+		
+		/* Only Master Thread */
+		if (tid == 0){
+			nthreads = omp_get_num_threads();
+			printf("Number of threads = %d\n\n\n", nthreads);
+			start = omp_get_wtime();	//program start time
+		}
+		
+		/* Some initializations */
+		#pragma omp for
+		for (i=0; i < N; i++){
+			a[i] = b[i] = i * 1.0;
+		}
+		
+		localsum = 0.0;
 
-	/* Some initializations */
-	n = 1000000;
-	for (i=0; i < n; i++)
-		a[i] = b[i] = i * 1.0;
-
-	sum = 0.0;
-
-  	for (i=0; i < n; i++)
-		sum = sum + (a[i] * b[i]*b[i]*b[i]);
-
-	printf("   Sum = %f\n",sum);
+		/* Compute Local Sum */
+		#pragma omp for
+	  	for (i=0; i < N; i++){
+			localsum = localsum + (a[i] * b[i]*b[i]*b[i]);			
+		}
+		
+		#pragma omp barrier
+		/* Compute Global Sum */	
+		#pragma omp critical
+		sum = sum+=localsum;
+		
+	} /* End of Parallel Region */
+	
+	printf("Sum = %f\n",sum);
 	
 	/* Calculate Runtime */
-    clock_t end = clock();
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
+	stop = omp_get_wtime();
+	printf("\n<Program Runtime: %.4fs>\n\n", stop - start);
 
 	return 0;
 }

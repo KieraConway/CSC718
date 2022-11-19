@@ -17,7 +17,6 @@
 
 #include <stdio.h>
 #include <time.h>
-
 #define INTERVALS 1000000
 
 int main(int arc, char* argv[])

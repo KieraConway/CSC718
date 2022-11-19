@@ -39,12 +39,12 @@ int main (int argc, char *argv[])
   	for (i=0; i < n; i++)
 		sum = sum + (a[i] * b[i]*b[i]*b[i]);
 
-	printf("   Sum = %f\n",sum);
+	printf("Sum = %f\n",sum);
 	
 	/* Calculate Runtime */
-    clock_t end = clock();
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
+    	clock_t end = clock();
+    	double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
+    	printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
 
 	return 0;
 }
