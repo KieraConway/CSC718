@@ -14,7 +14,7 @@
 //
 //	Sequential
 //
-//	parse a large text file, query the data, return the number of occurrences 
+//	parse a large text file, query the data, return the number of occurrences
 //	for a pre-specified string of characters
 //
 // // // // // // //
@@ -22,8 +22,9 @@
 
 /* Standard Libraries */
 #include <stdio.h>
-#include <stdbool.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 #include <getopt.h>
@@ -116,7 +117,17 @@ int main(int argc, char *argv[]) {
 
     caseSensitive = DEFAULT_CASE;
     verbose = DEFAULT_VERBOSE;
-	
+
+    /*** *** *** *** *** *** ***
+    *     Parse User Input
+    *** *** *** *** *** *** ***/
+    ProcessArgs(argc,argv);
+    
+    /* Manage Case */
+    if(!caseSensitive){                                         //if not case-sensitive
+       ChangeToLower(searchTerm);                           //change to lowercase
+    }
+
     /* Semaphore Init */
     for (int i = 0; i < maxThreads; i++) {
 
@@ -145,16 +156,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /*** *** *** *** *** *** ***
-    *     Parse User Input
-    *** *** *** *** *** *** ***/
-    ProcessArgs(argc,argv);
-
-
-    /* Manage Case */
-    if(!caseSensitive){                                         //if not case-sensitive
-       ChangeToLower(searchTerm);                           //change to lowercase
-    }
 
     /* Print Variables */
     printf("\n%d Threads are Searching \'%s\' for \'%s\'...",
@@ -352,7 +353,6 @@ void Usage(){
   Side Effects -    When necessary, updates global variables
   ----------------------------------------------------------------------- */
 void ProcessArgs(int argc, char ** argv){
-
     /*** *** *** *** *** *** ***
     *  Program Initialization
     *** *** *** *** *** *** ***/
@@ -363,7 +363,7 @@ void ProcessArgs(int argc, char ** argv){
     *    Process Arguments
     *** *** *** *** *** *** ***/
     /* Get Input */
-    input = getopt( argc, argv,"hcvf:s:t:" );
+    input = getopt( argc, argv,"cvt:hf:s:" );
 
     /* Handle if No Arguments */
     if (input == -1){
@@ -386,7 +386,7 @@ void ProcessArgs(int argc, char ** argv){
                 verbose = true;
                 break;
 
-            /* Specify Thread Number */
+            /* Specify Thread Amount */
             case 't':
 
                 threads = atoi(optarg);     //set thread value
@@ -423,7 +423,7 @@ void ProcessArgs(int argc, char ** argv){
                 exit(0);
         }
 
-        input = getopt( argc, argv, "hcvf:s:t:" );
+        input = getopt( argc, argv, "cvt:hf:s:" );
     }
 }
 
