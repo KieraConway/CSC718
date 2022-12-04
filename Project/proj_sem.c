@@ -47,7 +47,7 @@
 #define DEFAULT_FILE "testFile.txt"
 #define DEFAULT_TERM "life"
 #define DEFAULT_CASE false
-#define DEFAULT_VERBOSE false
+#define DEFAULT_VERBOSE true        //todo: change to false
 
 // // // // //
 // Note:
@@ -75,7 +75,7 @@ sem_t counter;                     //semaphore counter
 
 /** ----------------------------- Prototypes ---------------------------- **/
 void Usage();
-void ProcessArgs();
+void ProcessArgs(int argc, char ** argv);
 char* TrimLeft(char* str, const char* trimChars);
 char* TrimRight(char* str, const char* trimChars);
 char* ChangeToLower(char* str);
@@ -122,13 +122,15 @@ int main(int argc, char *argv[]) {
     *     Parse User Input
     *** *** *** *** *** *** ***/
     ProcessArgs(argc,argv);
-    
+
     /* Manage Case */
     if(!caseSensitive){                                         //if not case-sensitive
-       ChangeToLower(searchTerm);                           //change to lowercase
+        ChangeToLower(searchTerm);                           //change to lowercase
     }
 
-    /* Semaphore Init */
+    /*** *** *** *** *** *** ***
+    *   Initialize Semaphores
+    *** *** *** *** *** *** ***/
     for (int i = 0; i < maxThreads; i++) {
 
         // Mutex Semaphore
@@ -160,7 +162,7 @@ int main(int argc, char *argv[]) {
     /* Print Variables */
     printf("\n%d Threads are Searching \'%s\' for \'%s\'...",
            maxThreads, fileName, searchTerm);
-
+    fflush(stdout);
 
     /*** *** *** *** *** *** ***
     *   Begin Parallelization
@@ -176,13 +178,14 @@ int main(int argc, char *argv[]) {
         /////////////////////////////////////
         if (pthread_create(&threadIDs[i], NULL,
                            (void *(*)(void *)) &ThreadHandler,
-                           &i) != 0) {                      //attempt tid creation
+                           i) != 0) {                      //attempt tid creation
 
             // Display Error Message
             sem_wait(&display);                                     	//access display semaphore
             fprintf(stderr,
                     "Thread Error: Unable to create tid\n<%s>\n",
                     strerror(errno));                               //print error message
+            fflush(stderr);
             sem_post(&display);                                     	//release display semaphore
 
             exit(-1);
@@ -202,6 +205,7 @@ int main(int argc, char *argv[]) {
             /* Print Status Update */
             sem_wait(&display);							//access display semaphore
             printf("Thread %d has terminated successfully", threadIDs[i]);
+            fflush(stdout);
             sem_post(&display);							//release display semaphore
         }
     }
@@ -214,6 +218,7 @@ int main(int argc, char *argv[]) {
     /* Print Results */
     printf("\nThe word \'%s\' appears %d %s\n\n",
            searchTerm, globalCount, globalCount == 1 ? "time" : "times");
+    fflush(stdout);
 
     /* Calculate Runtime */
     clock_t end = clock();
@@ -247,6 +252,7 @@ void ThreadHandler(int tid){
         fprintf(stderr,
                 "Unable to open file \'%s\'\n[%d]: %s\n",
                 fileName, errno, strerror(errno));
+        fflush(stderr);
         sem_post(&display);							//release display semaphore
 
         exit (-1);
@@ -259,6 +265,7 @@ void ThreadHandler(int tid){
         printf("Thread %d has successfully opened %s\n "
                "Thread %d is searching for matches... ",
                tid, fileName, tid);
+        fflush(stdout);
         sem_post(&display);							//release display semaphore
     }
 
@@ -291,6 +298,7 @@ void ThreadHandler(int tid){
         sem_wait(&display);							//access display semaphore
         printf("Thread %d has successfully completed searching %s for \'%s\'\n ",
                tid, fileName, searchTerm);
+        fflush(stdout);
         sem_post(&display);							//release display semaphore
     }
 
@@ -306,6 +314,7 @@ void ThreadHandler(int tid){
         sem_wait(&display);							//access display semaphore						//access display semaphore
         printf("Thread %d has found %d matches, the total match count is now %d",
                tid, localCount, tmpCount);
+        fflush(stdout);
         sem_post(&display);							//release display semaphore
     }
 
@@ -322,11 +331,11 @@ void Usage(){
 
     printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
            "ver 1.0, 2022\n\n"
-           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n"
-           "\t%-14s %-24s %-16s\n"
+           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n\n"
+           "\t%-14s %-24s %-16s\n\n"
 
            "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
-           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
+           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n\n"
 
            "\t%-14s %-24s %-8s %-12d %-3s %-5s\n"
            "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
@@ -334,8 +343,8 @@ void Usage(){
 
            "-h:", "Display Usage summary", "Example: proj_seq -h",
 
-           "-c:", "Case Sensitive", "Default:", DEFAULT_CASE == true ? "True" : "False", "|", "Example: proj_seq -c",
-           "-v:", "Use Verbose Mode", "Default:", DEFAULT_VERBOSE == true ? "True" : "False", "|", "Example: proj_seq -v",
+           "-c:", "Set Case Sensitivity", "Default:", DEFAULT_CASE == true ? "True" : "False", "|", "Example: proj_seq -c",
+           "-v:", "Set Verbose Mode", "Default:", DEFAULT_VERBOSE == true ? "True" : "False", "|", "Example: proj_seq -v",
 
            "-t <1-10>:", "Set Number of Threads", "Default:", DEFAULT_THREADS, "|", "Example: proj_seq -t 3",
            "-f <file>:", "Specify File", "Default:", DEFAULT_FILE, "|", "Example: proj_seq -f myFile.txt",
@@ -367,56 +376,61 @@ void ProcessArgs(int argc, char ** argv){
 
     /* Handle if No Arguments */
     if (input == -1){
-        Usage();            //print usage
-        exit(0);        //exit
+        printf("Defaults Set [No Arguments Given]");        //inform user
+        fflush(stdout);
+        return;
     }
 
     /* Process All Arguments */
     while (input != -1) {
         switch (input) {
 
-
             /* Case Sensitive */
             case 'c':
                 caseSensitive = true;
                 break;
 
-            /* Verbose Mode */
+                /* Verbose Mode */
             case 'v':
                 verbose = true;
                 break;
 
-            /* Specify Thread Amount */
-            case 't':
+                //todo: UNCOMMENT FOR DISTRIBUTION
+//                /* Specify Thread Amount */
+//            case 't':
+//
+//                threads = atoi(optarg);     //set thread value
+//
+//                if(threads<=THREAD_LIMIT){                 //verify thread range
+//                    maxThreads = threads;
+//                }
+//                else{
+//                    fprintf(stderr,
+//                            "Invalid thread request <%s> - value must be between 0-10.\n "
+//                            "Defaulting to %d %s",
+//                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
+//                    fflush(stderr);
+//
+//                }
+//
+//                break;
+//
+//                /* Specify File */
+//            case 'f':
+//                memcpy(fileName, optarg,
+//                       strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
+//                fflush(stderr);
+//
+//                break;
+//
+//                /* Specify Target String */
+//            case 's':
+//                memcpy(searchTerm, optarg,
+//                       strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
+//                fflush(stderr);
+//                break;
 
-                threads = atoi(optarg);     //set thread value
-
-                if(threads<=THREAD_LIMIT){                 //verify thread range
-                    maxThreads = threads;
-                }
-                else{
-                    fprintf(stderr,
-                            "Invalid thread request <%s> - value must be between 0-10.\n "
-                            "Defaulting to %d %s",
-                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
-                }
-
-                break;
-
-            /* Specify File */
-            case 'f':
-                memcpy(fileName, optarg,
-                       strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : (strlen(optarg)+(strlen(DEFAULT_FILE) - strlen(optarg))));
-
-                break;
-
-            /* Specify Target String */
-            case 's':
-                memcpy(searchTerm, optarg,
-                       strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 : (strlen(optarg)+(strlen(DEFAULT_TERM) - strlen(optarg))));
-                break;
-
-            /* Access Help Menu */
+                /* Access Help Menu */
             case 'h':
             default:
                 Usage();
