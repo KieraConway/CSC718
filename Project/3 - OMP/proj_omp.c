@@ -35,7 +35,7 @@
 
 
 /** ----------------------------- Macros -------------------------------- **/
-# define getName(var, str)  sprintf(str, "%d", #var)
+# define getName(var, str)  sprintf(str, "%d", var)
 
 /** ----------------------------- Constants ----------------------------- **/
 /* User Input Limits */
@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     *** *** *** *** *** *** ***/
     int tid;
     int globalCount = 0;                //total occurrences of searchTerm in file
-    int localCount = 0;                 //occurrences of searchTerm by thread
+    //int localCount = 0;                 //occurrences of searchTerm by thread
 
     char word[MAX_STR];            //word currently being searched
     char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
@@ -150,8 +150,10 @@ int main(int argc, char *argv[]) {
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
     /* Fork a team of T threads */
-#pragma omp parallel shared(globalCount) private(tid, pInputFile, tFileName, word, localCount) num_threads(numThreads)
+#pragma omp parallel shared(globalCount) private(tid, pInputFile, tFileName, word) num_threads(numThreads)
     {
+    	int tmpCount;               //saves updated count (for debugging/verbose)
+    	int localCount = 0;
         /* Set Thread ID */
         tid = omp_get_thread_num();
 
@@ -168,7 +170,6 @@ int main(int argc, char *argv[]) {
         /* Parse Temp File */
         rewind(pInputFile);
 
-        int tmpCount;               //saves updated count (for debugging/verbose)
         while (fscanf(pInputFile, "%s", word) == 1) {       //while still file data
 
             /* Compare to Target String */
@@ -197,11 +198,6 @@ int main(int argc, char *argv[]) {
             printf("Thread %d has found %d matches, the total match count is now %d\n",
                    tid, localCount, tmpCount);
             fflush(stdout);
-        }
-
-        /* Only master thread does this */ //todo: REMOVE THIS, for debugging only
-        if (tid == 0 && verbose) {
-            printf("\n%d of %d Threads set\n", omp_get_num_threads(), numThreads);
         }
 
     }/* End of parallel region */
@@ -267,7 +263,7 @@ void FileSplitter(){
         char threadFile[OUTPUT_FILE_SIZE];                          //create variable
         memset(threadFile, 0, sizeof(threadFile));      //init variable
         getName(i, threadFile);                                     //create file named i
-
+ 	//sprintf(threadFile, "%d", i)					//create file named i
 
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {

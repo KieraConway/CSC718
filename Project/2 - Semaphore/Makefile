@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS  = -g -Wall
+CFLAGS  = -w
 
 NAME = proj_sem
 LIBS	= -lpthread -lm

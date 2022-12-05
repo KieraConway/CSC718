@@ -34,9 +34,7 @@
 #include <semaphore.h>
 /** ----------------------------- Structures ---------------------------- **/
 
-
 /** ----------------------------- Macros -------------------------------- **/
-# define getName(var, str)  sprintf(str, "%d", #var)
 
 /** ----------------------------- Constants ----------------------------- **/
 /* User Input Limits */
@@ -72,7 +70,7 @@ FILE* pThreadFiles[THREAD_LIMIT];         //unique pointer to file
 
 bool caseSensitive;             	//flag: is search case-sensitive
 bool verbose;                   	//flag: use verbose mode
-bool defaults[2] = {true, true};    //flag: use default settings {file, searchTerm}
+
 
 int maxThreads = 0;
 
@@ -96,7 +94,7 @@ void FileSplitter();
  *
  *  Parameters:
  *
- *      argc - main parameter for argument globalCount
+ *      argc - main parameter for argument count
  *      argv - main parameter for argument values
  *
 ******************************************************/
@@ -140,14 +138,6 @@ int main(int argc, char *argv[]) {
      *  Initialize Semaphores
      *** *** *** *** *** *** ***/
     for (int i = 0; i < maxThreads; i++) {
-
-        // Mutex Semaphore
-        if ((sem_init(&mutex, 0, i)) < 0) {
-            fprintf(stderr,
-                    "Semaphore Error: Unable to create semaphore mutex\n<%s>\n",
-                    strerror(errno));		//print error message
-            exit(-1);
-        }
 
         // Displaying to Screen Semaphore
         if ((sem_init(&display, 0, i)) < 0) {
@@ -218,7 +208,6 @@ int main(int argc, char *argv[]) {
     }
 
     /* Release Semaphores */
-    sem_destroy(&mutex);
     sem_destroy(&display);
     sem_destroy(&counter);
 
@@ -354,9 +343,8 @@ void FileSplitter(){
 
         /* Get File Name */
         char threadFile[OUTPUT_FILE_SIZE];                          //create variable
-        memset(threadFile, 0, sizeof(threadFile));      //init variable
-        getName(i, threadFile);                                     //create file named i
-
+        memset(threadFile, 0, sizeof(threadFile));      //init variable                                 
+	sprintf(threadFile, "%d", i);			//create file named i
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
 
@@ -455,7 +443,7 @@ void ProcessArgs(int argc, char ** argv){
                 verbose = true;
                 break;
 
-                //todo: UNCOMMENT FOR DISTRIBUTION
+                
                 /* Specify Thread Amount */
             case 't':
 
@@ -479,15 +467,14 @@ void ProcessArgs(int argc, char ** argv){
             case 'f':
                 memcpy(fileName, optarg,
                        strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
-                fflush(stderr);
-
+                
                 break;
 
                 /* Specify Target String */
             case 's':
                 memcpy(searchTerm, optarg,
                        strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
-                fflush(stderr);
+                
                 break;
 
                 /* Access Help Menu */
