@@ -36,11 +36,12 @@
 
 
 /** ----------------------------- Macros -------------------------------- **/
-
+# define getName(var, str)  sprintf(str, "%s", #var)
 
 /** ----------------------------- Constants ----------------------------- **/
 #define MAX_STR 100
 #define THREAD_LIMIT 10
+#define OUTPUT_FILE_SIZE 10
 
 /* Default Settings */
 #define DEFAULT_THREADS 5
@@ -63,6 +64,9 @@ int globalCount;                    //occurrences of searchTerm in file
 char fileName[MAX_STR];         	//file to search
 char searchTerm[MAX_STR];       	//term to search for
 
+char threadFileNames[THREAD_LIMIT][OUTPUT_FILE_SIZE];
+FILE* pThreadFiles[THREAD_LIMIT];         //unique pointer to file
+
 bool caseSensitive;             	//flag: is search case-sensitive
 bool verbose;                   	//flag: use verbose mode
 bool defaults[2] = {true, true};    //flag: use default settings {file, searchTerm}
@@ -80,7 +84,7 @@ char* TrimLeft(char* str, const char* trimChars);
 char* TrimRight(char* str, const char* trimChars);
 char* ChangeToLower(char* str);
 void ThreadHandler(int tid);
-
+void FileSplitter();
 /** ----------------------------- Functions ----------------------------- **/
 
 /*****************************************************
@@ -98,13 +102,6 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
     *  Program Initialization
     *** *** *** *** *** *** ***/
-
-    /* Initialize Local Variables */
-    globalCount = 0;                        //initialize counter
-
-    /* Thread Variables */
-    pthread_t threadIDs[maxThreads];		//tid IDS
-    //int tid[maxThreads];				    //tid
 
     /* Save Program Start Time */
     clock_t start = clock();
@@ -127,6 +124,14 @@ int main(int argc, char *argv[]) {
     if(!caseSensitive){                                         //if not case-sensitive
         ChangeToLower(searchTerm);                           //change to lowercase
     }
+
+    /* Initialize Local Variables */
+    globalCount = 0;                        //initialize counter
+
+
+    /* Thread Variables */
+    pthread_t threadIDs[maxThreads];		//tid IDS
+    //int tid[maxThreads];				    //tid
 
     /*** *** *** *** *** *** ***
     *   Initialize Semaphores
@@ -158,6 +163,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    FileSplitter();
 
     /* Print Variables */
     printf("\n%d Threads are Searching \'%s\' for \'%s\'...",
@@ -167,7 +173,6 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
     *   Begin Parallelization
     *** *** *** *** *** *** ***/
-
     for (int i = 0; i < maxThreads; i++) {
         //tid[i] = i;					        //save tid
 
@@ -239,40 +244,24 @@ void ThreadHandler(int tid){
     /*** *** *** *** *** *** ***
     *  Function Initialization
     *** *** *** *** *** *** ***/
-    FILE* pInputFile;               //unique pointer to file
-    char localWord[MAX_STR];        //localWord currently being searched
-    int localCount = 0;             //local counter
-    /*
-     * Open File
-     */
-    if ((pInputFile = fopen(fileName, "r") ) == NULL) {
+    FILE* pInputFile;                   //unique pointer to file
+    char localWord[MAX_STR];            //localWord currently being searched
+    int localCount = 0;                 //local counter
+    char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
 
-        /* Print Error Message */
-        sem_wait(&display);							//access display semaphore
-        fprintf(stderr,
-                "Unable to open file \'%s\'\n[%d]: %s\n",
-                fileName, errno, strerror(errno));
-        fflush(stderr);
-        sem_post(&display);							//release display semaphore
+    memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
 
-        exit (-1);
-    }
-
-    /* If Verbose */
-    if(verbose){
-        /* Print Status Update */
-        sem_wait(&display);							//access display semaphore
-        printf("Thread %d has successfully opened %s\n "
-               "Thread %d is searching for matches... ",
-               tid, fileName, tid);
-        fflush(stdout);
-        sem_post(&display);							//release display semaphore
-    }
+//    todo : remove, for reference only
+//    char tFileName[OUTPUT_FILE_SIZE];
+//    memset(tFileName, 0, sizeof(tFileName));
+//    sprintf(tFileName, "%d.txt", tid);
+//
+//
 
     /*
      * Parse File
      */
-    while (fscanf(pInputFile, "%s", localWord) == 1) {       //while still file data
+    while (fscanf(pThreadFiles[tid], "%s", localWord) == 1) {       //while still file data
 
         /* Clean Text Formatting */
         TrimRight(localWord, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
@@ -290,14 +279,22 @@ void ThreadHandler(int tid){
     }
 
     /* Close File */
-    fclose(pInputFile);
+    fclose(pThreadFiles[tid]);
 
-    /* If Verbose */
-    if(verbose){
-        /* Print Status Update */
+    if(remove(tFileName) != 0){     //if removal fails
+        // Display Error Message
+        sem_wait(&display);                                     	//access display semaphore
+        fprintf(stderr,
+                "Thread %d IO Error: Unable to remove temporary file %s\n<%s>\n",
+                tid, tFileName, strerror(errno));                               //print error message
+        fflush(stderr);
+        sem_post(&display);                                     	//release display semaphore
+
+    }
+    else if(verbose == true){           //removal succeeds and verbose set
         sem_wait(&display);							//access display semaphore
-        printf("Thread %d has successfully completed searching %s for \'%s\'\n ",
-               tid, fileName, searchTerm);
+        printf("Thread %d has successfully parsed and deleted temp file %s\n ",
+               tid, tFileName);
         fflush(stdout);
         sem_post(&display);							//release display semaphore
     }
@@ -317,7 +314,84 @@ void ThreadHandler(int tid){
         fflush(stdout);
         sem_post(&display);							//release display semaphore
     }
+}
 
+/* ------------------------------------------------------------------------
+  Name -            FileSplitter
+  Purpose -         Reads in file to a global index
+  Parameters -      fileName:       name of file to access
+                    fileContents:   location to save file contents
+  Returns -         none, exits on failure
+  Side Effects -    todo
+  ----------------------------------------------------------------------- */
+void FileSplitter(){
+    FILE* pInputFile;               //unique pointer to file
+
+    char currentWord[MAX_STR];        //currentWord being searched
+
+    /*** Initialize Global Tables ***/
+    memset(threadFileNames, 0, sizeof(threadFileNames));
+
+    /*
+    * Open Files
+    */
+    // input file
+    if ((pInputFile = fopen(fileName, "r") ) == NULL) {
+
+        /* Print Error Message */
+        fprintf(stderr,
+                "Unable to open file \'%s\'\n[%d]: %s\n",
+                fileName, errno, strerror(errno));
+        fflush(stderr);
+
+        exit (-1);
+    }
+
+    //get output file names
+    for(int i = 0 ; i < maxThreads; i++){
+        char threadFile[OUTPUT_FILE_SIZE];
+        memset(threadFile, 0, sizeof(threadFile));
+
+        sprintf(threadFile, "%d.txt", i);
+
+        //open file
+        if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
+
+            /* Print Error Message */
+            fprintf(stderr,
+                    "Unable to open file \'%s\'\n[%d]: %s\n",
+                    fileName, errno, strerror(errno));
+            fflush(stderr);
+
+            exit (-1);
+        }
+        memcpy(threadFileNames[i], threadFile, strlen(threadFile));
+    }
+
+    /*
+     * Parse and Split File
+     */
+    int i = 0;
+    while (fscanf(pInputFile, "%s", currentWord) == 1) {       //while still file data
+
+        /* Clean Text Formatting */
+        TrimRight(currentWord, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
+        TrimLeft(currentWord, "\t\n\v\f\r -");                 //trim excess char (left)
+
+        if(!caseSensitive){                                         //if not case-sensitive
+            // ChangeToLower(localWord);                                //change to lowercase
+        }
+
+        fputs(currentWord, pThreadFiles[i]);
+        fputs(" ", pThreadFiles[i]);
+
+        i = (i+1)%maxThreads;
+    }
+
+    /*
+    * Close Input File
+    */
+    fclose(pInputFile);
 }
 
 /* ------------------------------------------------------------------------
