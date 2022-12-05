@@ -48,7 +48,7 @@
 #define DEFAULT_FILE "testFile.txt"
 #define DEFAULT_TERM "life"
 #define DEFAULT_CASE false
-#define DEFAULT_VERBOSE true        //todo: change to false
+#define DEFAULT_VERBOSE false
 
 // // // // //
 // Note:
@@ -131,7 +131,6 @@ int main(int argc, char *argv[]) {
 
     /* Thread Variables */
     pthread_t threadIDs[maxThreads];		//tid IDS
-    //int tid[maxThreads];				    //tid
 
     /*** *** *** *** *** *** ***
     *   Initialize Semaphores
@@ -181,6 +180,7 @@ int main(int argc, char *argv[]) {
         //// if thread id problem, update &i to i
         //// or update int tid to int * tid
         /////////////////////////////////////
+        ThreadHandler(i);
         if (pthread_create(&threadIDs[i], NULL,
                            (void *(*)(void *)) &ThreadHandler,
                            i) != 0) {                      //attempt tid creation
@@ -209,7 +209,7 @@ int main(int argc, char *argv[]) {
         if(verbose){
             /* Print Status Update */
             sem_wait(&display);							//access display semaphore
-            printf("Thread %d has terminated successfully", threadIDs[i]);
+            printf("Thread %d has terminated successfully\n", threadIDs[i]);
             fflush(stdout);
             sem_post(&display);							//release display semaphore
         }
@@ -244,12 +244,14 @@ void ThreadHandler(int tid){
     /*** *** *** *** *** *** ***
     *  Function Initialization
     *** *** *** *** *** *** ***/
-    FILE* pInputFile;                   //unique pointer to file
+    FILE* pInputFile = pThreadFiles[tid];                   //unique pointer to file
     char localWord[MAX_STR];            //localWord currently being searched
     int localCount = 0;                 //local counter
     char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
 
+    memset(tFileName, 0, sizeof(tFileName));
     memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
+
 
 //    todo : remove, for reference only
 //    char tFileName[OUTPUT_FILE_SIZE];
@@ -259,17 +261,10 @@ void ThreadHandler(int tid){
 //
 
     /*
-     * Parse File
+     * Parse Temp File
      */
-    while (fscanf(pThreadFiles[tid], "%s", localWord) == 1) {       //while still file data
-
-        /* Clean Text Formatting */
-        TrimRight(localWord, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
-        TrimLeft(localWord, "\t\n\v\f\r -");                 //trim excess char (left)
-
-        if(!caseSensitive){                                         //if not case-sensitive
-            ChangeToLower(localWord);                                //change to lowercase
-        }
+    rewind(pInputFile);
+    while (fscanf(pInputFile, "%s", localWord) == 1) {       //while still file data
 
         /* Compare to Target String */
         if(strcmp(searchTerm, localWord) == 0){                           //if strings match
@@ -279,7 +274,7 @@ void ThreadHandler(int tid){
     }
 
     /* Close File */
-    fclose(pThreadFiles[tid]);
+    fclose(pInputFile);
 
     if(remove(tFileName) != 0){     //if removal fails
         // Display Error Message
@@ -309,7 +304,7 @@ void ThreadHandler(int tid){
     if(verbose){
         /* Print Status Update */
         sem_wait(&display);							//access display semaphore						//access display semaphore
-        printf("Thread %d has found %d matches, the total match count is now %d",
+        printf("Thread %d has found %d matches, the total match count is now %d\n",
                tid, localCount, tmpCount);
         fflush(stdout);
         sem_post(&display);							//release display semaphore
@@ -379,7 +374,7 @@ void FileSplitter(){
         TrimLeft(currentWord, "\t\n\v\f\r -");                 //trim excess char (left)
 
         if(!caseSensitive){                                         //if not case-sensitive
-            // ChangeToLower(localWord);                                //change to lowercase
+            ChangeToLower(currentWord);                                //change to lowercase
         }
 
         fputs(currentWord, pThreadFiles[i]);
