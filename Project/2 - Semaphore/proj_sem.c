@@ -29,7 +29,7 @@
 #include <ctype.h>
 #include <getopt.h>
 #include <time.h>
-
+#include <errno.h>
 #include <pthread.h>
 #include <semaphore.h>
 /** ----------------------------- Structures ---------------------------- **/
@@ -116,8 +116,8 @@ int main(int argc, char *argv[]) {
     verbose = DEFAULT_VERBOSE;
 
     /*** *** *** *** *** *** ***
-    *     Parse User Input
-    *** *** *** *** *** *** ***/
+     *    Parse User Input
+     *** *** *** *** *** *** ***/
     ProcessArgs(argc,argv);
 
     /* Manage Case */
@@ -132,9 +132,10 @@ int main(int argc, char *argv[]) {
     /* Thread Variables */
     pthread_t threadIDs[maxThreads];		//tid IDS
 
+
     /*** *** *** *** *** *** ***
-    *   Initialize Semaphores
-    *** *** *** *** *** *** ***/
+     *  Initialize Semaphores
+     *** *** *** *** *** *** ***/
     for (int i = 0; i < maxThreads; i++) {
 
         // Mutex Semaphore
@@ -162,25 +163,23 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    /*** *** *** *** *** *** ***
+     *    Split Input File
+     *** *** *** *** *** *** ***/
     FileSplitter();
 
     /* Print Variables */
-    printf("\n%d Threads are Searching \'%s\' for \'%s\'...",
+    printf("\n%d Threads are Searching \'%s\' for \'%s\'...\n\n",
            maxThreads, fileName, searchTerm);
     fflush(stdout);
 
+
     /*** *** *** *** *** *** ***
-    *   Begin Parallelization
-    *** *** *** *** *** *** ***/
+     *  Begin Parallelization
+     *** *** *** *** *** *** ***/
     for (int i = 0; i < maxThreads; i++) {
         //tid[i] = i;					        //save tid
 
-        ////////////////////////////////////
-        //// todo
-        //// if thread id problem, update &i to i
-        //// or update int tid to int * tid
-        /////////////////////////////////////
-        ThreadHandler(i);
         if (pthread_create(&threadIDs[i], NULL,
                            (void *(*)(void *)) &ThreadHandler,
                            i) != 0) {                      //attempt tid creation
@@ -197,10 +196,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    /*** *** *** *** *** *** ***
-    *   Program Termination
-    *** *** *** *** *** *** ***/
 
+    /*** *** *** *** *** *** ***
+     *  Program Termination
+     *** *** *** *** *** *** ***/
     /* Join Threads */
     for (int i = 0; i < maxThreads; i++) {
         pthread_join(threadIDs[i], NULL);
@@ -209,7 +208,7 @@ int main(int argc, char *argv[]) {
         if(verbose){
             /* Print Status Update */
             sem_wait(&display);							//access display semaphore
-            printf("Thread %d has terminated successfully\n", threadIDs[i]);
+            printf("Thread %d has terminated successfully\n", i);
             fflush(stdout);
             sem_post(&display);							//release display semaphore
         }
@@ -252,17 +251,19 @@ void ThreadHandler(int tid){
     memset(tFileName, 0, sizeof(tFileName));
     memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
 
+    /* If Verbose */
+    if(verbose){
+        /* Print Status Update */
+        sem_wait(&display);							//access display semaphore
+        printf("Thread %d Starting...\n", tid);
+        fflush(stdout);
+        sem_post(&display);							//release display semaphore
+    }
 
-//    todo : remove, for reference only
-//    char tFileName[OUTPUT_FILE_SIZE];
-//    memset(tFileName, 0, sizeof(tFileName));
-//    sprintf(tFileName, "%d.txt", tid);
-//
-//
 
-    /*
-     * Parse Temp File
-     */
+    /*** *** *** *** *** *** ***
+     *     Parse Temp File
+     *** *** *** *** *** *** ***/
     rewind(pInputFile);
     while (fscanf(pInputFile, "%s", localWord) == 1) {       //while still file data
 
@@ -270,13 +271,15 @@ void ThreadHandler(int tid){
         if(strcmp(searchTerm, localWord) == 0){                           //if strings match
             localCount++;                                                //increment counter
         }
-
     }
 
-    /* Close File */
+
+    /*** *** *** *** *** *** ***
+     *  Close and Remove File
+     *** *** *** *** *** *** ***/
     fclose(pInputFile);
 
-    if(remove(tFileName) != 0){     //if removal fails
+    if(remove(tFileName) == -1){     //if removal fails
         // Display Error Message
         sem_wait(&display);                                     	//access display semaphore
         fprintf(stderr,
@@ -284,16 +287,12 @@ void ThreadHandler(int tid){
                 tid, tFileName, strerror(errno));                               //print error message
         fflush(stderr);
         sem_post(&display);                                     	//release display semaphore
-
-    }
-    else if(verbose == true){           //removal succeeds and verbose set
-        sem_wait(&display);							//access display semaphore
-        printf("Thread %d has successfully parsed and deleted temp file %s\n ",
-               tid, tFileName);
-        fflush(stdout);
-        sem_post(&display);							//release display semaphore
     }
 
+
+    /*** *** *** *** *** *** ***
+     *  Function Termination
+     *** *** *** *** *** *** ***/
     /* Update Global Count */
     sem_wait(&counter);							//access counter semaphore
     globalCount+=localCount;                            //add localCount to globalCount
@@ -313,24 +312,26 @@ void ThreadHandler(int tid){
 
 /* ------------------------------------------------------------------------
   Name -            FileSplitter
-  Purpose -         Reads in file to a global index
-  Parameters -      fileName:       name of file to access
-                    fileContents:   location to save file contents
+  Purpose -         Reads in file and splits into n files
+  Parameters -      none
   Returns -         none, exits on failure
-  Side Effects -    todo
+  Side Effects -    creates n temp files on system
   ----------------------------------------------------------------------- */
 void FileSplitter(){
-    FILE* pInputFile;               //unique pointer to file
 
+    /*** *** *** *** *** *** ***
+    *  Function Initialization
+    *** *** *** *** *** *** ***/
+    FILE* pInputFile;               //unique pointer to file
     char currentWord[MAX_STR];        //currentWord being searched
 
-    /*** Initialize Global Tables ***/
     memset(threadFileNames, 0, sizeof(threadFileNames));
 
-    /*
-    * Open Files
-    */
-    // input file
+
+    /*** *** *** *** *** *** ***
+    *       Open Files
+    *** *** *** *** *** *** ***/
+    /* Open Input File */
     if ((pInputFile = fopen(fileName, "r") ) == NULL) {
 
         /* Print Error Message */
@@ -338,18 +339,22 @@ void FileSplitter(){
                 "Unable to open file \'%s\'\n[%d]: %s\n",
                 fileName, errno, strerror(errno));
         fflush(stderr);
-
         exit (-1);
     }
+    else if (verbose){
+        printf("File \'%s\' opened successfully\n\n", fileName);
+        fflush(stdout);
+    }
 
-    //get output file names
+    /* Open Output Files */
     for(int i = 0 ; i < maxThreads; i++){
-        char threadFile[OUTPUT_FILE_SIZE];
-        memset(threadFile, 0, sizeof(threadFile));
 
-        sprintf(threadFile, "%d.txt", i);
+        /* Get File Name */
+        char threadFile[OUTPUT_FILE_SIZE];                          //create variable
+        memset(threadFile, 0, sizeof(threadFile));      //init variable
+        sprintf(threadFile, "%d", i);                   //create file named i
 
-        //open file
+        /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
 
             /* Print Error Message */
@@ -360,12 +365,20 @@ void FileSplitter(){
 
             exit (-1);
         }
+        else if (verbose){
+            printf("Temp File \'%s\' created and opened successfully\n", threadFile);
+            fflush(stdout);
+        }
+
+
+        /* Save Created File Name */
         memcpy(threadFileNames[i], threadFile, strlen(threadFile));
     }
 
-    /*
-     * Parse and Split File
-     */
+
+    /*** *** *** *** *** *** ***
+    *   Parse and Split File
+    *** *** *** *** *** *** ***/
     int i = 0;
     while (fscanf(pInputFile, "%s", currentWord) == 1) {       //while still file data
 
@@ -377,48 +390,22 @@ void FileSplitter(){
             ChangeToLower(currentWord);                                //change to lowercase
         }
 
-        fputs(currentWord, pThreadFiles[i]);
-        fputs(" ", pThreadFiles[i]);
+        fputs(currentWord, pThreadFiles[i]);            //write word to necessary file
+        fputs(" ", pThreadFiles[i]);                    //write space
 
-        i = (i+1)%maxThreads;
+        i = (i+1)%maxThreads;                                   //increment threads
     }
 
-    /*
-    * Close Input File
-    */
+
+    /*** *** *** *** *** *** ***
+     *     Close Input File
+     *** *** *** *** *** *** ***/
     fclose(pInputFile);
-}
 
-/* ------------------------------------------------------------------------
-  Name -            Usage
-  Purpose -         Prints Help Menu
-  Parameters -      None
-  Returns -         None
-  Side Effects -    None
-  ----------------------------------------------------------------------- */
-void Usage(){
-
-    printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
-           "ver 1.0, 2022\n\n"
-           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n\n"
-           "\t%-14s %-24s %-16s\n\n"
-
-           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
-           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n\n"
-
-           "\t%-14s %-24s %-8s %-12d %-3s %-5s\n"
-           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
-           "\t%-14s %-24s %-8s %-12s %-3s %-2s\n",
-
-           "-h:", "Display Usage summary", "Example: proj_seq -h",
-
-           "-c:", "Set Case Sensitivity", "Default:", DEFAULT_CASE == true ? "True" : "False", "|", "Example: proj_seq -c",
-           "-v:", "Set Verbose Mode", "Default:", DEFAULT_VERBOSE == true ? "True" : "False", "|", "Example: proj_seq -v",
-
-           "-t <1-10>:", "Set Number of Threads", "Default:", DEFAULT_THREADS, "|", "Example: proj_seq -t 3",
-           "-f <file>:", "Specify File", "Default:", DEFAULT_FILE, "|", "Example: proj_seq -f myFile.txt",
-           "-s <string>:", "Specify Search Term", "Default:", DEFAULT_TERM, "|", "Example: proj_seq -s search_term");
-
+    if (verbose){
+        printf("\nFile \'%s\' parsed and closed successfully\n", fileName);
+        fflush(stdout);
+    }
 }
 
 
@@ -431,21 +418,22 @@ void Usage(){
   Side Effects -    When necessary, updates global variables
   ----------------------------------------------------------------------- */
 void ProcessArgs(int argc, char ** argv){
+
     /*** *** *** *** *** *** ***
-    *  Program Initialization
-    *** *** *** *** *** *** ***/
+     *  Program Initialization
+     *** *** *** *** *** *** ***/
     int input = 0;
     int threads = 0;
 
     /*** *** *** *** *** *** ***
-    *    Process Arguments
-    *** *** *** *** *** *** ***/
+     *     Process Arguments
+     *** *** *** *** *** *** ***/
     /* Get Input */
     input = getopt( argc, argv,"cvt:hf:s:" );
 
     /* Handle if No Arguments */
     if (input == -1){
-        printf("Defaults Set [No Arguments Given]");        //inform user
+        printf("Note: Defaults Set [No Arguments Given]\n\n");        //inform user
         fflush(stdout);
         return;
     }
@@ -465,39 +453,39 @@ void ProcessArgs(int argc, char ** argv){
                 break;
 
                 //todo: UNCOMMENT FOR DISTRIBUTION
-//                /* Specify Thread Amount */
-//            case 't':
-//
-//                threads = atoi(optarg);     //set thread value
-//
-//                if(threads<=THREAD_LIMIT){                 //verify thread range
-//                    maxThreads = threads;
-//                }
-//                else{
-//                    fprintf(stderr,
-//                            "Invalid thread request <%s> - value must be between 0-10.\n "
-//                            "Defaulting to %d %s",
-//                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
-//                    fflush(stderr);
-//
-//                }
-//
-//                break;
-//
-//                /* Specify File */
-//            case 'f':
-//                memcpy(fileName, optarg,
-//                       strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
-//                fflush(stderr);
-//
-//                break;
-//
-//                /* Specify Target String */
-//            case 's':
-//                memcpy(searchTerm, optarg,
-//                       strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
-//                fflush(stderr);
-//                break;
+                /* Specify Thread Amount */
+            case 't':
+
+                threads = atoi(optarg);     //set thread value
+
+                if(threads<=THREAD_LIMIT){                 //verify thread range
+                    maxThreads = threads;
+                }
+                else{
+                    fprintf(stderr,
+                            "Invalid thread request <%s> - value must be between 0-10.\n "
+                            "Defaulting to %d %s",
+                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
+                    fflush(stderr);
+
+                }
+
+                break;
+
+                /* Specify File */
+            case 'f':
+                memcpy(fileName, optarg,
+                       strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
+                fflush(stderr);
+
+                break;
+
+                /* Specify Target String */
+            case 's':
+                memcpy(searchTerm, optarg,
+                       strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
+                fflush(stderr);
+                break;
 
                 /* Access Help Menu */
             case 'h':
@@ -521,22 +509,21 @@ void ProcessArgs(int argc, char ** argv){
   ----------------------------------------------------------------------- */
 char* TrimLeft(char* str, const char* trimChars) {
 
-    /*
-     * Function Initialization
-     */
+
+    /*** *** *** *** *** *** ***
+    *  Function Initialization
+    *** *** *** *** *** *** ***/
     int i;
     char* newStartingPos;
 
-    /*
-     * Set defaults if trimChars is null
-     */
-    if (trimChars == NULL) {
+
+    /*** *** *** *** *** *** *** ***
+    *  Remove Specified Characters
+    *** *** *** *** *** *** *** ***/
+    /* Set Defaults */
+    if (trimChars == NULL) {            //if trimChars is null
         trimChars = "\t\n\v\f\r ";
     }
-
-    /*
-     * Remove Specified Characters
-     */
 
     /* Set Variables */
     i = 0;
@@ -548,6 +535,9 @@ char* TrimLeft(char* str, const char* trimChars) {
         newStartingPos++;   //move start position once to the right
     }
 
+    /*** *** *** *** *** *** ***
+     *  Function Termination
+     *** *** *** *** *** *** ***/
     /* Copy newStartingPos to str */
     strcpy(str, newStartingPos);
 
@@ -567,22 +557,22 @@ char* TrimLeft(char* str, const char* trimChars) {
   ----------------------------------------------------------------------- */
 char* TrimRight(char* str, const char* trimChars) {
 
-    /*
-     * Function Initialization
-     */
+    /*** *** *** *** *** *** ***
+    *  Function Initialization
+    *** *** *** *** *** *** ***/
     int i;
 
-    /*
-     * Set defaults if trimChars is null
-     */
-    if (trimChars == NULL) {
+
+    /*** *** *** *** *** *** *** ***
+    *  Remove Specified Characters
+    *** *** *** *** *** *** *** ***/
+    /* Set Defaults */
+    if (trimChars == NULL) {            //if trimChars is null
         trimChars = "\t\n\v\f\r ";
     }
 
-    /*
-     * Remove Specified Characters
-     */
-    i = strlen(str) - 1;                        //set index to end of string
+    /* Set Index */
+    i = strlen(str) - 1;                        //move index to last char
 
     /* Loop While Specified Character Shows */
     while (i >= 0 && strchr(trimChars, str[i]) != NULL) {
@@ -590,6 +580,9 @@ char* TrimRight(char* str, const char* trimChars) {
         i--;                //decrement string
     }
 
+    /*** *** *** *** *** *** ***
+     *  Function Termination
+     *** *** *** *** *** *** ***/
     /* Return Updated String */
     return str;
 }
@@ -604,22 +597,56 @@ char* TrimRight(char* str, const char* trimChars) {
   ----------------------------------------------------------------------- */
 char* ChangeToLower(char* str) {
 
-    /*
-     * Function Initialization
-     */
+    /*** *** *** *** *** *** ***
+    *  Function Initialization
+    *** *** *** *** *** *** ***/
     int i = 0;
 
 
-    /*
-     * Loop Entire String
-     */
+    /*** *** *** *** *** *** *** ***
+    *  Update Specified Characters
+    *** *** *** *** *** *** *** ***/
+    /* Loop Entire String */
     while (i <= (strlen(str))) {
         str[i] = tolower(str[i]);   //change to lowercase, overwrite letter
         i++;                            //increment index
     }
 
-
+    /*** *** *** *** *** *** ***
+     *  Function Termination
+     *** *** *** *** *** *** ***/
     /* Return Updated String */
     return str;
+}
+
+/* ------------------------------------------------------------------------
+  Name -            Usage
+  Purpose -         Prints Help Menu
+  Parameters -      None
+  Returns -         None
+  Side Effects -    None
+  ----------------------------------------------------------------------- */
+void Usage(){
+
+    printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
+           "ver 1.0, 2022\n\n"
+           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n\n"
+           "\t%-14s %-24s %-16s\n\n"
+
+           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
+           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n\n"
+
+           "\t%-14s %-24s %-8s %-12d %-3s %-5s\n"
+           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"
+           "\t%-14s %-24s %-8s %-12s %-3s %-2s\n\n",
+
+           "-h:", "Display Usage summary", "Example: proj_seq -h",
+
+           "-c:", "Set Case Sensitivity", "Default:", DEFAULT_CASE == true ? "True" : "False", "|", "Example: proj_seq -c",
+           "-v:", "Set Verbose Mode", "Default:", DEFAULT_VERBOSE == true ? "True" : "False", "|", "Example: proj_seq -v",
+
+           "-t <1-10>:", "Set Number of Threads", "Default:", DEFAULT_THREADS, "|", "Example: proj_seq -t 3",
+           "-f <file>:", "Specify File", "Default:", DEFAULT_FILE, "|", "Example: proj_seq -f myFile.txt",
+           "-s <string>:", "Specify Search Term", "Default:", DEFAULT_TERM, "|", "Example: proj_seq -s search_term");
 
 }
