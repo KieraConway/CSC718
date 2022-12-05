@@ -12,7 +12,7 @@
 // // // // // // //
 // Program:
 //
-//	Sequential
+//	Semaphore
 //
 //	parse a large text file, query the data, return the number of occurrences
 //	for a pre-specified string of characters
@@ -36,12 +36,12 @@
 
 
 /** ----------------------------- Macros -------------------------------- **/
-# define getName(var, str)  sprintf(str, "%s", #var)
+# define getName(var, str)  sprintf(str, "%d", #var)
 
 /** ----------------------------- Constants ----------------------------- **/
-#define MAX_STR 100
-#define THREAD_LIMIT 10
-#define OUTPUT_FILE_SIZE 10
+/* User Input Limits */
+#define MAX_STR 100             //max searchTerm length
+#define THREAD_LIMIT 10         //max number of threads
 
 /* Default Settings */
 #define DEFAULT_THREADS 5
@@ -56,8 +56,11 @@
 //      change them here. The code uses these to update
 //      the global/local variables.
 //
-//      DO NOT change settings under Global section
+//      DO NOT change settings under Global section or 
+//      any constants below this note
 // // // // //
+
+#define OUTPUT_FILE_SIZE 10     //output file name size. do not change
 
 /** ----------------------------- Global -------------------------------- **/
 int globalCount;                    //occurrences of searchTerm in file
@@ -352,7 +355,7 @@ void FileSplitter(){
         /* Get File Name */
         char threadFile[OUTPUT_FILE_SIZE];                          //create variable
         memset(threadFile, 0, sizeof(threadFile));      //init variable
-        sprintf(threadFile, "%d", i);                   //create file named i
+        getName(i, threadFile);                                     //create file named i
 
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {

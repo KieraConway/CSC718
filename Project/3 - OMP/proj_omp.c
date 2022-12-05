@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------
-    Project - Semaphore.c
+    Project - OMP.c
 
     CSC 718
     Operating Systems & Parallel Programming
@@ -12,7 +12,7 @@
 // // // // // // //
 // Program:
 //
-//	Sequential
+//	OMP
 //
 //	parse a large text file, query the data, return the number of occurrences
 //	for a pre-specified string of characters
@@ -28,20 +28,19 @@
 #include <string.h>
 #include <ctype.h>
 #include <getopt.h>
-#include <time.h>
 #include <errno.h>
-#include <pthread.h>
-#include <semaphore.h>
+#include <omp.h>
+
 /** ----------------------------- Structures ---------------------------- **/
 
 
 /** ----------------------------- Macros -------------------------------- **/
-# define getName(var, str)  sprintf(str, "%s", #var)
+# define getName(var, str)  sprintf(str, "%d", #var)
 
 /** ----------------------------- Constants ----------------------------- **/
-#define MAX_STR 100
-#define THREAD_LIMIT 10
-#define OUTPUT_FILE_SIZE 10
+/* User Input Limits */
+#define MAX_STR 100             //max searchTerm length
+#define THREAD_LIMIT 10         //max number of threads
 
 /* Default Settings */
 #define DEFAULT_THREADS 5
@@ -56,11 +55,14 @@
 //      change them here. The code uses these to update
 //      the global/local variables.
 //
-//      DO NOT change settings under Global section
+//      DO NOT change settings under Global section or
+//      any constants below this note
 // // // // //
 
+#define OUTPUT_FILE_SIZE 10     //output file name size. do not change
+
+
 /** ----------------------------- Global -------------------------------- **/
-int globalCount;                    //occurrences of searchTerm in file
 char fileName[MAX_STR];         	//file to search
 char searchTerm[MAX_STR];       	//term to search for
 
@@ -71,11 +73,8 @@ bool caseSensitive;             	//flag: is search case-sensitive
 bool verbose;                   	//flag: use verbose mode
 bool defaults[2] = {true, true};    //flag: use default settings {file, searchTerm}
 
-int maxThreads = 0;
-
-sem_t mutex;                       //semaphore mutex
-sem_t display;                     //semaphore display
-sem_t counter;                     //semaphore counter
+int numThreads = 0;                 //number of threads (value set in main)
+double startTime, stopTime;
 
 /** ----------------------------- Prototypes ---------------------------- **/
 void Usage();
@@ -83,7 +82,6 @@ void ProcessArgs(int argc, char ** argv);
 char* TrimLeft(char* str, const char* trimChars);
 char* TrimRight(char* str, const char* trimChars);
 char* ChangeToLower(char* str);
-void ThreadHandler(int tid);
 void FileSplitter();
 /** ----------------------------- Functions ----------------------------- **/
 
@@ -102,12 +100,21 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
     *  Program Initialization
     *** *** *** *** *** *** ***/
+    int tid;
+    int globalCount = 0;                //total occurrences of searchTerm in file
+    int localCount = 0;                 //occurrences of searchTerm by thread
+
+    char word[MAX_STR];            //word currently being searched
+    char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
+    FILE* pInputFile;                    //unique pointer to file
+
+    memset(tFileName, 0, sizeof(tFileName));
 
     /* Save Program Start Time */
-    clock_t start = clock();
+    startTime = omp_get_wtime();
 
     /* Set Defaults */
-    maxThreads = DEFAULT_THREADS;
+    numThreads = DEFAULT_THREADS;
 
     memcpy(fileName, DEFAULT_FILE, strlen(DEFAULT_FILE)+1);
     memcpy(searchTerm, DEFAULT_TERM, strlen(DEFAULT_TERM) + 1);
@@ -126,42 +133,7 @@ int main(int argc, char *argv[]) {
     }
 
     /* Initialize Local Variables */
-    globalCount = 0;                        //initialize counter
-
-
-    /* Thread Variables */
-    pthread_t threadIDs[maxThreads];		//tid IDS
-
-
-    /*** *** *** *** *** *** ***
-     *  Initialize Semaphores
-     *** *** *** *** *** *** ***/
-    for (int i = 0; i < maxThreads; i++) {
-
-        // Mutex Semaphore
-        if ((sem_init(&mutex, 0, i)) < 0) {
-            fprintf(stderr,
-                    "Semaphore Error: Unable to create semaphore mutex\n<%s>\n",
-                    strerror(errno));		//print error message
-            exit(-1);
-        }
-
-        // Displaying to Screen Semaphore
-        if ((sem_init(&display, 0, i)) < 0) {
-            fprintf(stderr,
-                    "Semaphore Error: Unable to create semaphore display\n<%s>\n",
-                    strerror(errno));		//print error message
-            exit(-1);
-        }
-
-        // Accepting Connections Semaphore
-        if ((sem_init(&counter, 0, i)) < 0) {
-            fprintf(stderr,
-                    "Semaphore Error: Unable to create semaphore counter\n<%s>\n",
-                    strerror(errno));		//print error message
-            exit(-1);
-        }
-    }
+    globalCount = 0;                        //initialize globalCount
 
     /*** *** *** *** *** *** ***
      *    Split Input File
@@ -170,144 +142,86 @@ int main(int argc, char *argv[]) {
 
     /* Print Variables */
     printf("\n%d Threads are Searching \'%s\' for \'%s\'...\n\n",
-           maxThreads, fileName, searchTerm);
+           numThreads, fileName, searchTerm);
     fflush(stdout);
 
 
     /*** *** *** *** *** *** ***
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
-    for (int i = 0; i < maxThreads; i++) {
-        //tid[i] = i;					        //save tid
+    /* Fork a team of T threads */
+#pragma omp parallel shared(globalCount) private(tid, pInputFile, tFileName, word, localCount) num_threads(numThreads)
+    {
+        /* Set Thread ID */
+        tid = omp_get_thread_num();
 
-        if (pthread_create(&threadIDs[i], NULL,
-                           (void *(*)(void *)) &ThreadHandler,
-                           i) != 0) {                      //attempt tid creation
-
-            // Display Error Message
-            sem_wait(&display);                                     	//access display semaphore
-            fprintf(stderr,
-                    "Thread Error: Unable to create tid\n<%s>\n",
-                    strerror(errno));                               //print error message
-            fflush(stderr);
-            sem_post(&display);                                     	//release display semaphore
-
-            exit(-1);
+        if(verbose){
+            /* Print Status Update */
+            printf("Thread %d Starting...\n", tid);
+            fflush(stdout);
         }
-    }
+
+        /* Set Local Thread Variables */
+        pInputFile = pThreadFiles[tid];
+        memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
+
+        /* Parse Temp File */
+        rewind(pInputFile);
+
+        int tmpCount;               //saves updated count (for debugging/verbose)
+        while (fscanf(pInputFile, "%s", word) == 1) {       //while still file data
+
+            /* Compare to Target String */
+            if(strcmp(searchTerm, word) == 0){                           //if strings match
+#pragma omp critical
+                {
+                    globalCount++;                                                //increment globalCount
+                    tmpCount = globalCount;
+                }
+                localCount++;                                           //increment localCount
+            }
+        }
+
+        /* Close and Remove File */
+        fclose(pInputFile);
+        if(remove(tFileName) == -1){     //if removal fails
+            // Display Error Message
+            fprintf(stderr,
+                    "Thread %d IO Error: Unable to remove temporary file %s\n<%s>\n",
+                    tid, tFileName, strerror(errno));                               //print error message
+            fflush(stderr);
+        }
+
+        /* Print Status Update if Verbose */
+        if(verbose){
+            printf("Thread %d has found %d matches, the total match count is now %d\n",
+                   tid, localCount, tmpCount);
+            fflush(stdout);
+        }
+
+        /* Only master thread does this */ //todo: REMOVE THIS, for debugging only
+        if (tid == 0 && verbose) {
+            printf("\n%d of %d Threads set\n", omp_get_num_threads(), numThreads);
+        }
+
+    }/* End of parallel region */
+
 
 
     /*** *** *** *** *** *** ***
      *  Program Termination
      *** *** *** *** *** *** ***/
-    /* Join Threads */
-    for (int i = 0; i < maxThreads; i++) {
-        pthread_join(threadIDs[i], NULL);
-
-        /* If Verbose */
-        if(verbose){
-            /* Print Status Update */
-            sem_wait(&display);							//access display semaphore
-            printf("Thread %d has terminated successfully\n", i);
-            fflush(stdout);
-            sem_post(&display);							//release display semaphore
-        }
-    }
-
-    /* Release Semaphores */
-    sem_destroy(&mutex);
-    sem_destroy(&display);
-    sem_destroy(&counter);
-
     /* Print Results */
     printf("\nThe word \'%s\' appears %d %s\n\n",
            searchTerm, globalCount, globalCount == 1 ? "time" : "times");
     fflush(stdout);
 
     /* Calculate Runtime */
-    clock_t end = clock();
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
+    stopTime = omp_get_wtime();
+    double time_spent = (double)(stopTime - startTime);
     printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
 
     return 0;
-}
-/* ------------------------------------------------------------------------
-  Name -            ThreadHandler
-  Purpose -         Handles each thread
-  Parameters -      none
-  Returns -         none, exits on failure
-  Side Effects -    todo
-  ----------------------------------------------------------------------- */
-void ThreadHandler(int tid){
-
-    /*** *** *** *** *** *** ***
-    *  Function Initialization
-    *** *** *** *** *** *** ***/
-    FILE* pInputFile = pThreadFiles[tid];                   //unique pointer to file
-    char localWord[MAX_STR];            //localWord currently being searched
-    int localCount = 0;                 //local counter
-    char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
-
-    memset(tFileName, 0, sizeof(tFileName));
-    memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
-
-    /* If Verbose */
-    if(verbose){
-        /* Print Status Update */
-        sem_wait(&display);							//access display semaphore
-        printf("Thread %d Starting...\n", tid);
-        fflush(stdout);
-        sem_post(&display);							//release display semaphore
-    }
-
-
-    /*** *** *** *** *** *** ***
-     *     Parse Temp File
-     *** *** *** *** *** *** ***/
-    rewind(pInputFile);
-    while (fscanf(pInputFile, "%s", localWord) == 1) {       //while still file data
-
-        /* Compare to Target String */
-        if(strcmp(searchTerm, localWord) == 0){                           //if strings match
-            localCount++;                                                //increment counter
-        }
-    }
-
-
-    /*** *** *** *** *** *** ***
-     *  Close and Remove File
-     *** *** *** *** *** *** ***/
-    fclose(pInputFile);
-
-    if(remove(tFileName) == -1){     //if removal fails
-        // Display Error Message
-        sem_wait(&display);                                     	//access display semaphore
-        fprintf(stderr,
-                "Thread %d IO Error: Unable to remove temporary file %s\n<%s>\n",
-                tid, tFileName, strerror(errno));                               //print error message
-        fflush(stderr);
-        sem_post(&display);                                     	//release display semaphore
-    }
-
-
-    /*** *** *** *** *** *** ***
-     *  Function Termination
-     *** *** *** *** *** *** ***/
-    /* Update Global Count */
-    sem_wait(&counter);							//access counter semaphore
-    globalCount+=localCount;                            //add localCount to globalCount
-    int tmpCount = globalCount;                         //obtains the new count value after update
-    sem_post(&counter);							//release counter semaphore
-
-    /* If Verbose */
-    if(verbose){
-        /* Print Status Update */
-        sem_wait(&display);							//access display semaphore						//access display semaphore
-        printf("Thread %d has found %d matches, the total match count is now %d\n",
-               tid, localCount, tmpCount);
-        fflush(stdout);
-        sem_post(&display);							//release display semaphore
-    }
 }
 
 /* ------------------------------------------------------------------------
@@ -347,12 +261,13 @@ void FileSplitter(){
     }
 
     /* Open Output Files */
-    for(int i = 0 ; i < maxThreads; i++){
+    for(int i = 0 ; i < numThreads; i++){
 
         /* Get File Name */
         char threadFile[OUTPUT_FILE_SIZE];                          //create variable
         memset(threadFile, 0, sizeof(threadFile));      //init variable
-        sprintf(threadFile, "%d", i);                   //create file named i
+        getName(i, threadFile);                                     //create file named i
+
 
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
@@ -393,7 +308,7 @@ void FileSplitter(){
         fputs(currentWord, pThreadFiles[i]);            //write word to necessary file
         fputs(" ", pThreadFiles[i]);                    //write space
 
-        i = (i+1)%maxThreads;                                   //increment threads
+        i = (i+1) % numThreads;                                   //increment threads
     }
 
 
@@ -459,13 +374,13 @@ void ProcessArgs(int argc, char ** argv){
                 threads = atoi(optarg);     //set thread value
 
                 if(threads<=THREAD_LIMIT){                 //verify thread range
-                    maxThreads = threads;
+                    numThreads = threads;
                 }
                 else{
                     fprintf(stderr,
                             "Invalid thread request <%s> - value must be between 0-10.\n "
                             "Defaulting to %d %s",
-                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
+                            optarg, numThreads, numThreads == 1 ? "thread" : "threads" );		//print error message
                     fflush(stderr);
 
                 }
