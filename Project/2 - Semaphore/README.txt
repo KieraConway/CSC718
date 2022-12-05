@@ -49,6 +49,9 @@ Notes:
 
 	-   Running time depends on max thread connections.  Runtime is
 	    printed at end of each program.
+		
+	-	testFile.txt is a randomly generated AI text file, the information 
+		within is nonsensical and nonfactual
 
 Overview of Functions:
     main()              Program Entry
