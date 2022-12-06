@@ -15,7 +15,7 @@
 //	Sequential
 //
 //	parse a large text file, query the data, return the number of occurrences
-//	for a pre-specified string of characters
+//	for a pre-specified search term
 //
 // // // // // // //
 
@@ -372,7 +372,7 @@ char* ChangeToLower(char* str) {
   ----------------------------------------------------------------------- */
 void Usage(){
 
-    printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
+    printf("\nA Sequential Program for finding occurrences of a specified search term in a large file\n"
            "ver 1.0, 2022\n\n"
            "Usage: proj_seq -h -c -v -f <file> -s <string>\n\n"
            "\t%-14s %-24s %-16s\n\n"

@@ -1,9 +1,10 @@
 ===================================================
-SEQUENTIAL:
+				Sequential Program:
 ===================================================
 
 ./proj_seq -h
-	A Sequential Program for finding occurrences of a specified string in a large file
+
+	A Sequential Program for finding occurrences of a specified search term in a large file
 	ver 1.0, 2022
 
 	Usage: proj_seq -h -c -v -f <file> -s <string>
@@ -16,6 +17,7 @@ SEQUENTIAL:
 		-f <file>:     Specify File             Default: testFile.txt |   Example: proj_seq -f myFile.txt
 		-s <string>:   Specify Search Term      Default: life         |   Example: proj_seq -s search_term
 		
+		
 ./proj_seq
 
 	Note: Defaults Set [No Arguments Given]
@@ -27,6 +29,7 @@ SEQUENTIAL:
 
 	<Program Runtime: 0.0251s>
 
+
 ./proj_seq -c
 
 	Searching 'testFile.txt' for 'life'...
@@ -34,6 +37,7 @@ SEQUENTIAL:
 
 
 	<Program Runtime: 0.0121s>
+
 
 ./proj_seq -v
 
@@ -49,7 +53,9 @@ SEQUENTIAL:
 
 	<Program Runtime: 0.0284s>
 
+
 ./proj_seq -v -s Earth
+
 	Searching 'testFile.txt' for 'earth'...
 
 	File 'testFile.txt' has opened successfully
@@ -62,13 +68,14 @@ SEQUENTIAL:
 
 	<Program Runtime: 0.0270s>
 
+
 ===================================================
-SEMAPHORES:
-==================================================
+				Semaphore Program:
+===================================================
 
 ./proj_sem -h
 
-	A Multithreaded Program for finding occurrences of a specified string in a large file
+	A Multithreaded Program for finding occurrences of a specified search term in a large file
 	ver 1.0, 2022
 
 	Usage: proj_sem -h -c -v -t <1-10> -f <file> -s <string>
@@ -81,6 +88,8 @@ SEMAPHORES:
 		-t <1-10>:     Set Number of Threads    Default: 5            |   Example: proj_seq -t 3
 		-f <file>:     Specify File             Default: testFile.txt |   Example: proj_seq -f myFile.txt
 		-s <string>:   Specify Search Term      Default: life         |   Example: proj_seq -s search_term
+
+
 ./proj_sem
 
 	Note: Defaults Set [No Arguments Given]
@@ -142,10 +151,11 @@ SEMAPHORES:
 
 	<Program Runtime: 0.0372s>
 	
+	
 ./proj_sem -v -s Earth
 
 
-File 'testFile.txt' opened successfully
+	File 'testFile.txt' opened successfully
 
 	Temp File '0' created and opened successfully
 	Temp File '1' created and opened successfully
@@ -178,7 +188,9 @@ File 'testFile.txt' opened successfully
 
 	<Program Runtime: 0.0382s>
 
+
 ./proj_sem -v -t 9 -s Earth
+
 	File 'testFile.txt' opened successfully
 
 	Temp File '0' created and opened successfully
@@ -227,24 +239,28 @@ File 'testFile.txt' opened successfully
 
 
 	<Program Runtime: 0.0391s>
+	
+	
 ===================================================
-OMP:
-==================================================
+				OMP Program:
+===================================================
+
 ./proj_omp -h
 
-An openMP Program for finding occurrences of a specified string in a large file
-ver 1.0, 2022
+	An openMP Program for finding occurrences of a specified search term in a large file
+	ver 1.0, 2022
 
-Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
+	Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
 
-	-h:            Display Usage summary    Example: proj_seq -h
+		-h:            Display Usage summary    Example: proj_seq -h
 
-	-c:            Set Case Sensitivity     Default: False        |   Example: proj_seq -c
-	-v:            Set Verbose Mode         Default: False        |   Example: proj_seq -v
+		-c:            Set Case Sensitivity     Default: False        |   Example: proj_seq -c
+		-v:            Set Verbose Mode         Default: False        |   Example: proj_seq -v
 
-	-t <1-10>:     Set Number of Threads    Default: 5            |   Example: proj_seq -t 3
-	-f <file>:     Specify File             Default: testFile.txt |   Example: proj_seq -f myFile.txt
-	-s <string>:   Specify Search Term      Default: life         |   Example: proj_seq -s search_term
+		-t <1-10>:     Set Number of Threads    Default: 5            |   Example: proj_seq -t 3
+		-f <file>:     Specify File             Default: testFile.txt |   Example: proj_seq -f myFile.txt
+		-s <string>:   Specify Search Term      Default: life         |   Example: proj_seq -s search_term
+	
 	
 ./proj_omp
 	
@@ -259,7 +275,9 @@ Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
 
 	<Program Runtime: 0.0963s>
 	
+	
 ./proj_omp -v
+
 	File 'testFile.txt' opened successfully
 
 	Temp File '0' created and opened successfully
@@ -287,6 +305,7 @@ Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
 
 
 	<Program Runtime: 0.0848s>
+	
 	
 ./proj_omp -v -s Earth
 
@@ -317,6 +336,7 @@ Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
 
 
 	<Program Runtime: 0.0701s>
+	
 	
 ./proj_omp -v -t 9 -s Earth
 

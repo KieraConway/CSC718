@@ -4,7 +4,7 @@ Sequential Program:
 
 > ./proj_seq -h
 
-	A Sequential Program for finding occurrences of a specified string in a large file
+	A Sequential Program for finding occurrences of a specified search term in a large file
 	ver 1.0, 2022
 
 	Usage: proj_seq -h -c -v -f <file> -s <string>
@@ -73,7 +73,7 @@ Semaphore Program:
 
 >./proj_sem -h
 
-	A Multithreaded Program for finding occurrences of a specified string in a large file
+	A Multithreaded Program for finding occurrences of a specified search term in a large file
 	ver 1.0, 2022
 
 	Usage: proj_sem -h -c -v -t <1-10> -f <file> -s <string>
@@ -245,7 +245,7 @@ OMP Program:
 
 >./proj_omp -h
 
-	An openMP Program for finding occurrences of a specified string in a large file
+	An openMP Program for finding occurrences of a specified search term in a large file
 	ver 1.0, 2022
 
 	Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>
