@@ -56,9 +56,9 @@
 // // // // //
 
 /** ----------------------------- Global -------------------------------- **/
-int count;                      //occurrences of searchTerm in file
-char fileName[MAX_STR];         //file to search
-char searchTerm[MAX_STR];       //term to search for
+int count;                      	//occurrences of searchTerm in file
+char fileName[MAX_STR];         	//file to search
+char searchTerm[MAX_STR];       	//term to search for
 
 bool caseSensitive;             	//flag: is search case-sensitive
 bool verbose;                   	//flag: use verbose mode
@@ -90,10 +90,10 @@ int main(int argc, char *argv[]) {
     *** *** *** *** *** *** ***/
 
     /* Initialize Local Variables */
-    FILE* pInputFile;               //pointer to file
-    char word[MAX_STR];             //word currently being searched
+    FILE* pInputFile;               	//pointer to file
+    char word[MAX_STR];             	//word currently being searched
 
-    count = 0;                      //initialize counter
+    count = 0;                      	//initialize counter
 
     /* Save Program Start Time */
     clock_t start = clock();
@@ -111,8 +111,8 @@ int main(int argc, char *argv[]) {
     ProcessArgs(argc,argv);
 
     /* Manage Case */
-    if(!caseSensitive){                                         //if not case-sensitive
-        ChangeToLower(searchTerm);                           //change to lowercase
+    if(!caseSensitive){					//if not case-sensitive
+        ChangeToLower(searchTerm);		//change to lowercase
     }
 
 
@@ -140,19 +140,19 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *        Parse File
      *** *** *** *** *** *** ***/
-    while (fscanf(pInputFile, "%s", word) == 1) {       //while still file data
+    while (fscanf(pInputFile, "%s", word) == 1) {		//while still file data
 
         /* Clean Text Formatting */
-        TrimRight(word, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
-        TrimLeft(word, "\t\n\v\f\r -");                 //trim excess char (left)
+        TrimRight(word, "\t\n\v\f\r .,!?:;-""'");		//trim excess char (right)
+        TrimLeft(word, "\t\n\v\f\r -");					//trim excess char (left)
 
-        if (!caseSensitive) {                             //if not case-sensitive
-            ChangeToLower(word);                        //change to lowercase
-            ChangeToLower(searchTerm);                  //change to lowercase
+        if (!caseSensitive) {							//if not case-sensitive
+            ChangeToLower(word);						//change to lowercase
+            ChangeToLower(searchTerm);					//change to lowercase
         }
 
         /* Compare to Target String */
-        if (strcmp(searchTerm, word) == 0) {              //if strings match
+        if (strcmp(searchTerm, word) == 0) {			//if strings match
             count++;                                    //increment counter
         }
     }
@@ -196,13 +196,12 @@ void ProcessArgs(int argc, char ** argv){
       *     Process Arguments
       *** *** *** *** *** *** ***/
     /* Get Input */
-
     int input = 0;
     input = getopt( argc, argv,"cvt:hf:s:" );
 
     /* Handle if No Arguments */
     if (input == -1){
-        printf("Note: Defaults Set [No Arguments Given]\n\n");        //inform user
+        printf("Note: Defaults Set [No Arguments Given]\n\n");
         fflush(stdout);
         return;
     }
@@ -216,23 +215,23 @@ void ProcessArgs(int argc, char ** argv){
                 caseSensitive = true;
                 break;
 
-                /* Verbose Mode */
+			/* Verbose Mode */
             case 'v':
                 verbose = true;
                 break;
-                /* Specify File */
+			/* Specify File */
             case 'f':
                 memcpy(fileName, optarg,
                        strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
                 break;
 
-                /* Specify Target String */
+			/* Specify Target String */
             case 's':
                 memcpy(searchTerm, optarg,
                        strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
                 break;
 
-                /* Access Help Menu */
+			/* Access Help Menu */
             case 'h':
             default:
                 Usage();
@@ -266,7 +265,7 @@ char* TrimLeft(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) {
         trimChars = "\t\n\v\f\r ";
     }
 
@@ -276,8 +275,8 @@ char* TrimLeft(char* str, const char* trimChars) {
 
     /* Loop While Specified Character Shows */
     while (i < strlen(str) && strchr(trimChars, str[i]) != NULL) {
-        i++;                //increment index
-        newStartingPos++;   //move start position once to the right
+        i++;                		//increment index
+        newStartingPos++;   		//move start position once to the right
     }
 
     /*** *** *** *** *** *** ***
@@ -312,17 +311,17 @@ char* TrimRight(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) { 
         trimChars = "\t\n\v\f\r ";
     }
 
     /* Set Index */
-    i = strlen(str) - 1;                        //move index to last char
+    i = strlen(str) - 1;			//move index to last char
 
     /* Loop While Specified Character Shows */
     while (i >= 0 && strchr(trimChars, str[i]) != NULL) {
-        str[i] = '\0';      //replace character with null
-        i--;                //decrement string
+        str[i] = '\0';				//replace character with null
+        i--;						//decrement string
     }
 
     /*** *** *** *** *** *** ***
@@ -353,8 +352,8 @@ char* ChangeToLower(char* str) {
     *** *** *** *** *** *** *** ***/
     /* Loop Entire String */
     while (i <= (strlen(str))) {
-        str[i] = tolower(str[i]);   //change to lowercase, overwrite letter
-        i++;                            //increment index
+        str[i] = tolower(str[i]);	//change to lowercase, overwrite letter
+        i++;						//increment index
     }
 
     /*** *** *** *** *** *** ***
@@ -390,5 +389,4 @@ void Usage(){
 
            "-f <file>:", "Specify File", "Default:", DEFAULT_FILE, "|", "Example: proj_seq -f myFile.txt",
            "-s <string>:", "Specify Search Term", "Default:", DEFAULT_TERM, "|", "Example: proj_seq -s search_term");
-
 }
