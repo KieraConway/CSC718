@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------
-    Project - OMP.c
+    proj_omp.c
 
     CSC 718
     Operating Systems & Parallel Programming
@@ -149,11 +149,11 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
-    /* Fork a team of T threads */
+    /* Fork a team of 'numThreads' threads */
 #pragma omp parallel shared(globalCount) private(tid, pInputFile, tFileName, word) num_threads(numThreads)
     {
-    	int tmpCount;               //saves updated count (for debugging/verbose)
-    	int localCount = 0;
+        int tmpCount;               //saves updated count (for debugging/verbose)
+        int localCount = 0;
         /* Set Thread ID */
         tid = omp_get_thread_num();
 
@@ -263,7 +263,7 @@ void FileSplitter(){
         char threadFile[OUTPUT_FILE_SIZE];                          //create variable
         memset(threadFile, 0, sizeof(threadFile));      //init variable
         getName(i, threadFile);                                     //create file named i
- 	//sprintf(threadFile, "%d", i)					//create file named i
+        //sprintf(threadFile, "%d", i)					//create file named i
 
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
@@ -363,8 +363,8 @@ void ProcessArgs(int argc, char ** argv){
                 verbose = true;
                 break;
 
-                //todo: UNCOMMENT FOR DISTRIBUTION
-                /* Specify Thread Amount */
+
+            /* Specify Thread Amount */
             case 't':
 
                 threads = atoi(optarg);     //set thread value
@@ -539,9 +539,9 @@ char* ChangeToLower(char* str) {
   ----------------------------------------------------------------------- */
 void Usage(){
 
-    printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
+    printf("\nAn openMP Program for finding occurrences of a specified string in a large file\n"
            "ver 1.0, 2022\n\n"
-           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n\n"
+           "Usage: proj_omp -h -c -v -t <1-10> -f <file> -s <string>\n\n"
            "\t%-14s %-24s %-16s\n\n"
 
            "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"

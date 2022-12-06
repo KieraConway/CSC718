@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------
-    Project - Semaphore.c
+    proj_sem.c
 
     CSC 718
     Operating Systems & Parallel Programming
@@ -618,9 +618,9 @@ char* ChangeToLower(char* str) {
   ----------------------------------------------------------------------- */
 void Usage(){
 
-    printf("\nA Sequential Program for finding occurrences of a specified string in a large file\n"
+    printf("\nA Multithreaded Program for finding occurrences of a specified string in a large file\n"
            "ver 1.0, 2022\n\n"
-           "Usage: proj_seq -h -c -v -t <1-10> -f <file> -s <string>\n\n"
+           "Usage: proj_sem -h -c -v -t <1-10> -f <file> -s <string>\n\n"
            "\t%-14s %-24s %-16s\n\n"
 
            "\t%-14s %-24s %-8s %-12s %-3s %-5s\n"

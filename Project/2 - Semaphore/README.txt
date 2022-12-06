@@ -7,7 +7,7 @@ Compile:
     Program compiled using Makefile - commands are copied below
 
         > make
-            g++ -g -Wall -o proj_sem proj_sem.c -lpthread -lm
+            gcc -g -Wall -o proj_sem proj_sem.c -lpthread -lm
 
         > make clean
             rm -f proj_sem
@@ -15,16 +15,16 @@ Compile:
 
 Usage:
 
-	proj_seq -h -c -v -t <1-10> -f <file> -s <string>
+	proj_sem -h -c -v -t <1-10> -f <file> -s <string>
 
-        -h:            Display Usage summary    Example: proj_seq -h
+        -h:            Display Usage summary    Example: proj_sem -h
 
-        -c:            Set Case Sensitivity     Default: False        |   Example: proj_seq -c
-        -v:            Set Verbose Mode         Default: False        |   Example: proj_seq -v
+        -c:            Set Case Sensitivity     Default: False        |   Example: proj_sem -c
+        -v:            Set Verbose Mode         Default: False        |   Example: proj_sem -v
 
-        -t <1-10>:     Set Number of Threads    Default: 5            |   Example: proj_seq -t 3
-        -f <file>:     Specify File             Default: testFile.txt |   Example: proj_seq -f myFile.txt
-        -s <string>:   Specify Search Term      Default: life         |   Example: proj_seq -s search_term
+        -t <1-10>:     Set Number of Threads    Default: 5            |   Example: proj_sem -t 3
+        -f <file>:     Specify File             Default: testFile.txt |   Example: proj_sem -f myFile.txt
+        -s <string>:   Specify Search Term      Default: life         |   Example: proj_sem -s search_term
 
     Note: 
 		-	All Arguments are Optional (Defaults are used if no arguments are set)
@@ -44,14 +44,11 @@ Contents:
 Notes:
     -   Usage details above - all arguments are optional
 
-	-	Client can be simulated using http://localhost:<PortNumber>/
-	    Example: http://localhost:8080/
-
 	-   Running time depends on max thread connections.  Runtime is
 	    printed at end of each program.
 		
 	-	testFile.txt is a randomly generated AI text file, the information 
-		within is nonsensical and nonfactual
+		within is nonfactual and mostly nonsensical.
 
 Overview of Functions:
     main()              Program Entry
@@ -60,12 +57,16 @@ Overview of Functions:
                             (3) Initialize Semaphores
 							(4)	Split Input File
 									FileSplitter();
-                            (5) Creates Threads
+									
+							---- Begin Parallelization ----		
+                            (5) Create Threads
 									ThreadHandler()
-                            (6) Joins Threads
-                            (7) Releases Semaphores
-                            (8) Displays Final Data
-                            (8) Calculates Runtime
+                            (6) Join Threads
+							---- End Of Parallel Region ----
+							
+                            (7) Release Semaphores
+                            (8) Display Final Data
+                            (9) Calculate and Print Runtime
 
     ThreadHandler()		Handles Threads
                             (1) Parse Temp File
