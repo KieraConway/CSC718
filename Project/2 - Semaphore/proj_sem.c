@@ -38,8 +38,8 @@
 
 /** ----------------------------- Constants ----------------------------- **/
 /* User Input Limits */
-#define MAX_STR 100             //max searchTerm length
-#define THREAD_LIMIT 10         //max number of threads
+#define MAX_STR 100						//max searchTerm length
+#define THREAD_LIMIT 10					//max number of threads
 
 /* Default Settings */
 #define DEFAULT_THREADS 5
@@ -58,25 +58,25 @@
 //      any constants below this note
 // // // // //
 
-#define OUTPUT_FILE_SIZE 10     //output file name size. do not change
+#define OUTPUT_FILE_SIZE 10			//output file name size. do not change
 
 /** ----------------------------- Global -------------------------------- **/
-int globalCount;                    //occurrences of searchTerm in file
-char fileName[MAX_STR];         	//file to search
-char searchTerm[MAX_STR];       	//term to search for
+int globalCount;					//occurrences of searchTerm in file
+char fileName[MAX_STR];				//file to search
+char searchTerm[MAX_STR];			//term to search for
 
 char threadFileNames[THREAD_LIMIT][OUTPUT_FILE_SIZE];
-FILE* pThreadFiles[THREAD_LIMIT];         //unique pointer to file
+FILE* pThreadFiles[THREAD_LIMIT];	//unique pointer to file
 
-bool caseSensitive;             	//flag: is search case-sensitive
-bool verbose;                   	//flag: use verbose mode
+bool caseSensitive;					//flag: is search case-sensitive
+bool verbose;						//flag: use verbose mode
 
 
 int maxThreads = 0;
 
-sem_t mutex;                       //semaphore mutex
-sem_t display;                     //semaphore display
-sem_t counter;                     //semaphore counter
+sem_t mutex;						//semaphore mutex
+sem_t display;						//semaphore display
+sem_t counter;						//semaphore counter
 
 /** ----------------------------- Prototypes ---------------------------- **/
 void Usage();
@@ -122,16 +122,16 @@ int main(int argc, char *argv[]) {
     ProcessArgs(argc,argv);
 
     /* Manage Case */
-    if(!caseSensitive){                                         //if not case-sensitive
-        ChangeToLower(searchTerm);                           //change to lowercase
+    if(!caseSensitive){						//if not case-sensitive
+        ChangeToLower(searchTerm);			//change to lowercase
     }
 
     /* Initialize Local Variables */
-    globalCount = 0;                        //initialize counter
+    globalCount = 0;						//initialize counter
 
 
     /* Thread Variables */
-    pthread_t threadIDs[maxThreads];		//tid IDS
+    pthread_t threadIDs[maxThreads];
 
 
     /*** *** *** *** *** *** ***
@@ -171,19 +171,18 @@ int main(int argc, char *argv[]) {
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
     for (int i = 0; i < maxThreads; i++) {
-        //tid[i] = i;					        //save tid
 
         if (pthread_create(&threadIDs[i], NULL,
                            (void *(*)(void *)) &ThreadHandler,
-                           i) != 0) {                      //attempt tid creation
+                           i) != 0) {					//attempt tid creation
 
             // Display Error Message
-            sem_wait(&display);                                     	//access display semaphore
+            sem_wait(&display);							//access display semaphore
             fprintf(stderr,
                     "Thread Error: Unable to create tid\n<%s>\n",
-                    strerror(errno));                               //print error message
+                    strerror(errno));					//print error message
             fflush(stderr);
-            sem_post(&display);                                     	//release display semaphore
+            sem_post(&display);							//release display semaphore
 
             exit(-1);
         }
@@ -235,10 +234,10 @@ void ThreadHandler(int tid){
     /*** *** *** *** *** *** ***
     *  Function Initialization
     *** *** *** *** *** *** ***/
-    FILE* pInputFile = pThreadFiles[tid];                   //unique pointer to file
-    char localWord[MAX_STR];            //localWord currently being searched
-    int localCount = 0;                 //local counter
-    char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
+    FILE* pInputFile = pThreadFiles[tid];			//unique pointer to file
+    char localWord[MAX_STR];						//localWord currently being searched
+    int localCount = 0;								//local counter
+    char tFileName[OUTPUT_FILE_SIZE];				//thread/temp file name
 
     memset(tFileName, 0, sizeof(tFileName));
     memcpy(tFileName, threadFileNames[tid], strlen(threadFileNames[tid]));
@@ -257,11 +256,11 @@ void ThreadHandler(int tid){
      *     Parse Temp File
      *** *** *** *** *** *** ***/
     rewind(pInputFile);
-    while (fscanf(pInputFile, "%s", localWord) == 1) {       //while still file data
+    while (fscanf(pInputFile, "%s", localWord) == 1) {	//while still file data
 
         /* Compare to Target String */
-        if(strcmp(searchTerm, localWord) == 0){                           //if strings match
-            localCount++;                                                //increment counter
+        if(strcmp(searchTerm, localWord) == 0){		//if strings match
+            localCount++;							//increment counter
         }
     }
 
@@ -271,14 +270,14 @@ void ThreadHandler(int tid){
      *** *** *** *** *** *** ***/
     fclose(pInputFile);
 
-    if(remove(tFileName) == -1){     //if removal fails
+    if(remove(tFileName) == -1){					//if removal fails
         // Display Error Message
-        sem_wait(&display);                                     	//access display semaphore
+        sem_wait(&display);							//access display semaphore
         fprintf(stderr,
                 "Thread %d IO Error: Unable to remove temporary file %s\n<%s>\n",
-                tid, tFileName, strerror(errno));                               //print error message
+                tid, tFileName, strerror(errno));	//print error message
         fflush(stderr);
-        sem_post(&display);                                     	//release display semaphore
+        sem_post(&display);							//release display semaphore
     }
 
 
@@ -286,15 +285,15 @@ void ThreadHandler(int tid){
      *  Function Termination
      *** *** *** *** *** *** ***/
     /* Update Global Count */
-    sem_wait(&counter);							//access counter semaphore
-    globalCount+=localCount;                            //add localCount to globalCount
-    int tmpCount = globalCount;                         //obtains the new count value after update
-    sem_post(&counter);							//release counter semaphore
+    sem_wait(&counter);								//access counter semaphore
+    globalCount+=localCount;						//add localCount to globalCount
+    int tmpCount = globalCount;						//obtains the new count value after update
+    sem_post(&counter);								//release counter semaphore
 
     /* If Verbose */
     if(verbose){
         /* Print Status Update */
-        sem_wait(&display);							//access display semaphore						//access display semaphore
+        sem_wait(&display);							//access display semaphore
         printf("Thread %d has found %d matches, the total match count is now %d\n",
                tid, localCount, tmpCount);
         fflush(stdout);
@@ -314,8 +313,8 @@ void FileSplitter(){
     /*** *** *** *** *** *** ***
     *  Function Initialization
     *** *** *** *** *** *** ***/
-    FILE* pInputFile;               //unique pointer to file
-    char currentWord[MAX_STR];        //currentWord being searched
+    FILE* pInputFile;								//unique pointer to file
+    char currentWord[MAX_STR];						//currentWord being searched
 
     memset(threadFileNames, 0, sizeof(threadFileNames));
 
@@ -342,9 +341,9 @@ void FileSplitter(){
     for(int i = 0 ; i < maxThreads; i++){
 
         /* Get File Name */
-        char threadFile[OUTPUT_FILE_SIZE];                          //create variable
-        memset(threadFile, 0, sizeof(threadFile));      //init variable                                 
-	sprintf(threadFile, "%d", i);			//create file named i
+        char threadFile[OUTPUT_FILE_SIZE];			//create variable
+        memset(threadFile, 0, sizeof(threadFile));	//init variable                                 
+	sprintf(threadFile, "%d", i);					//create file named i
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
 
@@ -371,20 +370,20 @@ void FileSplitter(){
     *   Parse and Split File
     *** *** *** *** *** *** ***/
     int i = 0;
-    while (fscanf(pInputFile, "%s", currentWord) == 1) {       //while still file data
+    while (fscanf(pInputFile, "%s", currentWord) == 1) {	//while still file data
 
         /* Clean Text Formatting */
-        TrimRight(currentWord, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
-        TrimLeft(currentWord, "\t\n\v\f\r -");                 //trim excess char (left)
+        TrimRight(currentWord, "\t\n\v\f\r .,!?:;-""'");	//trim excess char (right)
+        TrimLeft(currentWord, "\t\n\v\f\r -");				//trim excess char (left)
 
-        if(!caseSensitive){                                         //if not case-sensitive
-            ChangeToLower(currentWord);                                //change to lowercase
+        if(!caseSensitive){									//if not case-sensitive
+            ChangeToLower(currentWord);						//change to lowercase
         }
 
-        fputs(currentWord, pThreadFiles[i]);            //write word to necessary file
-        fputs(" ", pThreadFiles[i]);                    //write space
+        fputs(currentWord, pThreadFiles[i]);				//write word to necessary file
+        fputs(" ", pThreadFiles[i]);						//write space
 
-        i = (i+1)%maxThreads;                                   //increment threads
+        i = (i+1)%maxThreads;								//increment threads
     }
 
 
@@ -424,7 +423,7 @@ void ProcessArgs(int argc, char ** argv){
 
     /* Handle if No Arguments */
     if (input == -1){
-        printf("Note: Defaults Set [No Arguments Given]\n\n");        //inform user
+        printf("Note: Defaults Set [No Arguments Given]\n\n");
         fflush(stdout);
         return;
     }
@@ -438,39 +437,40 @@ void ProcessArgs(int argc, char ** argv){
                 caseSensitive = true;
                 break;
 
-                /* Verbose Mode */
+			/* Verbose Mode */
             case 'v':
                 verbose = true;
                 break;
 
                 
-                /* Specify Thread Amount */
+			/* Specify Thread Amount */
             case 't':
 
-                threads = atoi(optarg);     //set thread value
+                threads = atoi(optarg);					//set thread value
 
-                if(threads<=THREAD_LIMIT){                 //verify thread range
+                if(threads<=THREAD_LIMIT){				//verify thread range
                     maxThreads = threads;
                 }
                 else{
+					// Print Error Message
                     fprintf(stderr,
                             "Invalid thread request <%s> - value must be between 0-10.\n "
                             "Defaulting to %d %s",
-                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );		//print error message
+                            optarg, maxThreads, maxThreads == 1 ? "thread" : "threads" );
                     fflush(stderr);
 
                 }
 
                 break;
 
-                /* Specify File */
+			/* Specify File */
             case 'f':
                 memcpy(fileName, optarg,
                        strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
                 
                 break;
 
-                /* Specify Target String */
+			/* Specify Target String */
             case 's':
                 memcpy(searchTerm, optarg,
                        strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
@@ -511,7 +511,7 @@ char* TrimLeft(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) {
         trimChars = "\t\n\v\f\r ";
     }
 
@@ -521,8 +521,8 @@ char* TrimLeft(char* str, const char* trimChars) {
 
     /* Loop While Specified Character Shows */
     while (i < strlen(str) && strchr(trimChars, str[i]) != NULL) {
-        i++;                //increment index
-        newStartingPos++;   //move start position once to the right
+        i++;                		//increment index
+        newStartingPos++;   		//move start position once to the right
     }
 
     /*** *** *** *** *** *** ***
@@ -557,17 +557,17 @@ char* TrimRight(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) {
         trimChars = "\t\n\v\f\r ";
     }
 
     /* Set Index */
-    i = strlen(str) - 1;                        //move index to last char
+    i = strlen(str) - 1;			//move index to last char
 
     /* Loop While Specified Character Shows */
     while (i >= 0 && strchr(trimChars, str[i]) != NULL) {
-        str[i] = '\0';      //replace character with null
-        i--;                //decrement string
+        str[i] = '\0';				//replace character with null
+        i--;						//decrement string
     }
 
     /*** *** *** *** *** *** ***
@@ -576,6 +576,7 @@ char* TrimRight(char* str, const char* trimChars) {
     /* Return Updated String */
     return str;
 }
+
 
 
 /* ------------------------------------------------------------------------
@@ -598,8 +599,8 @@ char* ChangeToLower(char* str) {
     *** *** *** *** *** *** *** ***/
     /* Loop Entire String */
     while (i <= (strlen(str))) {
-        str[i] = tolower(str[i]);   //change to lowercase, overwrite letter
-        i++;                            //increment index
+        str[i] = tolower(str[i]);	//change to lowercase, overwrite letter
+        i++;						//increment index
     }
 
     /*** *** *** *** *** *** ***
@@ -608,6 +609,7 @@ char* ChangeToLower(char* str) {
     /* Return Updated String */
     return str;
 }
+
 
 /* ------------------------------------------------------------------------
   Name -            Usage

@@ -369,6 +369,8 @@ char* ChangeToLower(char* str) {
     /* Return Updated String */
     return str;
 }
+
+
 /* ------------------------------------------------------------------------
   Name -            Usage
   Purpose -         Prints Help Menu
