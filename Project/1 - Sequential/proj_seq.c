@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *        Parse File
      *** *** *** *** *** *** ***/
-    /* Save Program Start Time */
+    /* Save Program Start Parse Time */
     clock_t parseStart = clock();
 
     while (fscanf(pInputFile, "%s", word) == 1) {		//while still file data
@@ -180,7 +180,7 @@ int main(int argc, char *argv[]) {
     clock_t end = clock();
     double programTime = (double)(end - start) / CLOCKS_PER_SEC; //calculate program runtime
     double parseTime = (double)(end - parseStart) / CLOCKS_PER_SEC; //calculate parse runtime
-    //printf("\n< %.4fs>\n\n", programTime);
+	
     printf("\n%-1s %-10s %-5.4fs %-1s %-10s %-5.4fs %-1s\n\n",
            "<","Program Runtime:", programTime, "|", "File Parse Time:", parseTime,">");
 
@@ -222,23 +222,24 @@ void ProcessArgs(int argc, char ** argv){
                 caseSensitive = true;
                 break;
 
-                /* Verbose Mode */
+			/* Verbose Mode */
             case 'v':
                 verbose = true;
                 break;
-                /* Specify File */
+
+			/* Specify File */
             case 'f':
                 memcpy(fileName, optarg,
                        strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
                 break;
 
-                /* Specify Target String */
+			/* Specify Target String */
             case 's':
                 memcpy(searchTerm, optarg,
                        strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
                 break;
 
-                /* Access Help Menu */
+			/* Access Help Menu */
             case 'h':
             default:
                 Usage();

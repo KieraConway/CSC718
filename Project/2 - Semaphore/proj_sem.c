@@ -54,7 +54,7 @@
 //      change them here. The code uses these to update
 //      the global/local variables.
 //
-//      DO NOT change settings under Global section or 
+//      DO NOT change settings under Global section or
 //      any constants below this note
 // // // // //
 
@@ -170,6 +170,9 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
+    /* Save Program Start Parse Time */
+    clock_t parseStart = clock();
+
     for (int i = 0; i < maxThreads; i++) {
 
         if (pthread_create(&threadIDs[i], NULL,
@@ -217,8 +220,13 @@ int main(int argc, char *argv[]) {
 
     /* Calculate Runtime */
     clock_t end = clock();
-    double time_spent = (double)(end - start) / CLOCKS_PER_SEC;
-    printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
+    double programTime = (double)(end - start) / CLOCKS_PER_SEC; //calculate program runtime
+    double parseTime = (double)(end - parseStart) / CLOCKS_PER_SEC; //calculate parse runtime
+
+    printf("\n%-1s %-10s %-5.4fs %-1s %-10s %-5.4fs %-1s\n\n",
+           "<","Program Runtime:", programTime, "|", "File Parse Time:", parseTime,">");
+
+
 
     return 0;
 }
@@ -342,8 +350,8 @@ void FileSplitter(){
 
         /* Get File Name */
         char threadFile[OUTPUT_FILE_SIZE];			//create variable
-        memset(threadFile, 0, sizeof(threadFile));	//init variable                                 
-	sprintf(threadFile, "%d", i);					//create file named i
+        memset(threadFile, 0, sizeof(threadFile));	//init variable
+        sprintf(threadFile, "%d", i);					//create file named i
         /* Open File */
         if ((pThreadFiles[i] = fopen(threadFile, "a+") ) == NULL) {
 
@@ -442,7 +450,6 @@ void ProcessArgs(int argc, char ** argv){
                 verbose = true;
                 break;
 
-                
 			/* Specify Thread Amount */
             case 't':
 
@@ -452,7 +459,7 @@ void ProcessArgs(int argc, char ** argv){
                     maxThreads = threads;
                 }
                 else{
-					// Print Error Message
+                    // Print Error Message
                     fprintf(stderr,
                             "Invalid thread request <%s> - value must be between 0-10.\n "
                             "Defaulting to %d %s",
@@ -467,17 +474,17 @@ void ProcessArgs(int argc, char ** argv){
             case 'f':
                 memcpy(fileName, optarg,
                        strlen(DEFAULT_FILE) >= strlen(optarg) ? strlen(DEFAULT_FILE)+1 : strlen(optarg)+1);
-                
+
                 break;
 
 			/* Specify Target String */
             case 's':
                 memcpy(searchTerm, optarg,
                        strlen(DEFAULT_TERM) >= strlen(optarg) ? strlen(DEFAULT_TERM)+1 :  strlen(optarg)+1 );
-                
+
                 break;
 
-                /* Access Help Menu */
+			/* Access Help Menu */
             case 'h':
             default:
                 Usage();
