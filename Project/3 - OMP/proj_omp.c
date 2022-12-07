@@ -39,8 +39,8 @@
 
 /** ----------------------------- Constants ----------------------------- **/
 /* User Input Limits */
-#define MAX_STR 100             //max searchTerm length
-#define THREAD_LIMIT 10         //max number of threads
+#define MAX_STR 100					//max searchTerm length
+#define THREAD_LIMIT 10				//max number of threads
 
 /* Default Settings */
 #define DEFAULT_THREADS 5
@@ -59,22 +59,22 @@
 //      any constants below this note
 // // // // //
 
-#define OUTPUT_FILE_SIZE 10     //output file name size. do not change
+#define OUTPUT_FILE_SIZE 10			//output file name size. do not change
 
 
 /** ----------------------------- Global -------------------------------- **/
-char fileName[MAX_STR];         	//file to search
-char searchTerm[MAX_STR];       	//term to search for
+char fileName[MAX_STR];				//file to search
+char searchTerm[MAX_STR];			//term to search for
 
 char threadFileNames[THREAD_LIMIT][OUTPUT_FILE_SIZE];
-FILE* pThreadFiles[THREAD_LIMIT];         //unique pointer to file
+FILE* pThreadFiles[THREAD_LIMIT];	//unique pointer to file
 
-bool caseSensitive;             	//flag: is search case-sensitive
-bool verbose;                   	//flag: use verbose mode
-bool defaults[2] = {true, true};    //flag: use default settings {file, searchTerm}
+bool caseSensitive;					//flag: is search case-sensitive
+bool verbose;						//flag: use verbose mode
+bool defaults[2] = {true, true};	//flag: use default settings {file, searchTerm}
 
-int numThreads = 0;                 //number of threads (value set in main)
-double startTime, stopTime;
+int numThreads = 0;					//number of threads (value set in main)
+double startTime, parseStart, stopTime;
 
 /** ----------------------------- Prototypes ---------------------------- **/
 void Usage();
@@ -101,12 +101,12 @@ int main(int argc, char *argv[]) {
     *  Program Initialization
     *** *** *** *** *** *** ***/
     int tid;
-    int globalCount = 0;                //total occurrences of searchTerm in file
-    //int localCount = 0;                 //occurrences of searchTerm by thread
+    int globalCount = 0;				//total occurrences of searchTerm in file
+    //int localCount = 0;				//occurrences of searchTerm by thread
 
-    char word[MAX_STR];            //word currently being searched
-    char tFileName[OUTPUT_FILE_SIZE];   //thread/temp file name
-    FILE* pInputFile;                    //unique pointer to file
+    char word[MAX_STR];					//word currently being searched
+    char tFileName[OUTPUT_FILE_SIZE];	//thread/temp file name
+    FILE* pInputFile;					//unique pointer to file
 
     memset(tFileName, 0, sizeof(tFileName));
 
@@ -128,12 +128,12 @@ int main(int argc, char *argv[]) {
     ProcessArgs(argc,argv);
 
     /* Manage Case */
-    if(!caseSensitive){                                         //if not case-sensitive
-        ChangeToLower(searchTerm);                           //change to lowercase
+    if(!caseSensitive){					//if not case-sensitive
+        ChangeToLower(searchTerm);		//change to lowercase
     }
 
     /* Initialize Local Variables */
-    globalCount = 0;                        //initialize globalCount
+    globalCount = 0;					//initialize globalCount
 
     /*** *** *** *** *** *** ***
      *    Split Input File
@@ -149,10 +149,13 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
+    /* Save Parse Start Time */
+    parseStart = omp_get_wtime();
+
     /* Fork a team of 'numThreads' threads */
 #pragma omp parallel shared(globalCount) private(tid, pInputFile, tFileName, word) num_threads(numThreads)
     {
-        int tmpCount;               //saves updated count (for debugging/verbose)
+        int tmpCount;					//saves updated count (for debugging/verbose)
         int localCount = 0;
         /* Set Thread ID */
         tid = omp_get_thread_num();
@@ -170,26 +173,26 @@ int main(int argc, char *argv[]) {
         /* Parse Temp File */
         rewind(pInputFile);
 
-        while (fscanf(pInputFile, "%s", word) == 1) {       //while still file data
+        while (fscanf(pInputFile, "%s", word) == 1) {	//while still file data
 
             /* Compare to Target String */
-            if(strcmp(searchTerm, word) == 0){                           //if strings match
+            if(strcmp(searchTerm, word) == 0){			//if strings match
 #pragma omp critical
                 {
-                    globalCount++;                                                //increment globalCount
+                    globalCount++;						//increment globalCount
                     tmpCount = globalCount;
                 }
-                localCount++;                                           //increment localCount
+                localCount++;							//increment localCount
             }
         }
 
         /* Close and Remove File */
         fclose(pInputFile);
-        if(remove(tFileName) == -1){     //if removal fails
+        if(remove(tFileName) == -1){					//if removal fails
             // Display Error Message
             fprintf(stderr,
                     "Thread %d IO Error: Unable to remove temporary file %s\n<%s>\n",
-                    tid, tFileName, strerror(errno));                               //print error message
+                    tid, tFileName, strerror(errno));	//print error message
             fflush(stderr);
         }
 
@@ -214,8 +217,11 @@ int main(int argc, char *argv[]) {
 
     /* Calculate Runtime */
     stopTime = omp_get_wtime();
-    double time_spent = (double)(stopTime - startTime);
-    printf("\n<Program Runtime: %.4fs>\n\n", time_spent);
+    double programTime = (double)(stopTime - startTime);
+    double parseTime = (double)(stopTime - parseStart); //calculate parse runtime
+
+    printf("\n%-1s %-10s %-5.4fs %-1s %-10s %-5.4fs %-1s\n\n",
+           "<","Program Runtime:", programTime, "|", "File Parse Time:", parseTime,">");
 
     return 0;
 }
@@ -232,8 +238,8 @@ void FileSplitter(){
     /*** *** *** *** *** *** ***
     *  Function Initialization
     *** *** *** *** *** *** ***/
-    FILE* pInputFile;               //unique pointer to file
-    char currentWord[MAX_STR];        //currentWord being searched
+    FILE* pInputFile;					//unique pointer to file
+    char currentWord[MAX_STR];			//currentWord being searched
 
     memset(threadFileNames, 0, sizeof(threadFileNames));
 
@@ -260,9 +266,9 @@ void FileSplitter(){
     for(int i = 0 ; i < numThreads; i++){
 
         /* Get File Name */
-        char threadFile[OUTPUT_FILE_SIZE];                          //create variable
+        char threadFile[OUTPUT_FILE_SIZE];				//create variable
         memset(threadFile, 0, sizeof(threadFile));      //init variable
-        getName(i, threadFile);                                     //create file named i
+        getName(i, threadFile);							//create file named i
         //sprintf(threadFile, "%d", i)					//create file named i
 
         /* Open File */
@@ -291,20 +297,20 @@ void FileSplitter(){
     *   Parse and Split File
     *** *** *** *** *** *** ***/
     int i = 0;
-    while (fscanf(pInputFile, "%s", currentWord) == 1) {       //while still file data
+    while (fscanf(pInputFile, "%s", currentWord) == 1) {		//while still file data
 
         /* Clean Text Formatting */
-        TrimRight(currentWord, "\t\n\v\f\r .,!?:;-""'");       //trim excess char (right)
-        TrimLeft(currentWord, "\t\n\v\f\r -");                 //trim excess char (left)
+        TrimRight(currentWord, "\t\n\v\f\r .,!?:;-""'");		//trim excess char (right)
+        TrimLeft(currentWord, "\t\n\v\f\r -");					//trim excess char (left)
 
-        if(!caseSensitive){                                         //if not case-sensitive
-            ChangeToLower(currentWord);                                //change to lowercase
+        if(!caseSensitive){								//if not case-sensitive
+            ChangeToLower(currentWord);					//change to lowercase
         }
 
-        fputs(currentWord, pThreadFiles[i]);            //write word to necessary file
-        fputs(" ", pThreadFiles[i]);                    //write space
+        fputs(currentWord, pThreadFiles[i]);			//write word to necessary file
+        fputs(" ", pThreadFiles[i]);					//write space
 
-        i = (i+1) % numThreads;                                   //increment threads
+        i = (i+1) % numThreads;							//increment threads
     }
 
 
@@ -344,7 +350,7 @@ void ProcessArgs(int argc, char ** argv){
 
     /* Handle if No Arguments */
     if (input == -1){
-        printf("Note: Defaults Set [No Arguments Given]\n\n");        //inform user
+        printf("Note: Defaults Set [No Arguments Given]\n\n");
         fflush(stdout);
         return;
     }
@@ -363,20 +369,20 @@ void ProcessArgs(int argc, char ** argv){
                 verbose = true;
                 break;
 
-
-            /* Specify Thread Amount */
+                /* Specify Thread Amount */
             case 't':
 
-                threads = atoi(optarg);     //set thread value
+                threads = atoi(optarg);					//set thread value
 
-                if(threads<=THREAD_LIMIT){                 //verify thread range
+                if(threads<=THREAD_LIMIT){				//verify thread range
                     numThreads = threads;
                 }
                 else{
+                    // Print Error Message
                     fprintf(stderr,
                             "Invalid thread request <%s> - value must be between 0-10.\n "
                             "Defaulting to %d %s",
-                            optarg, numThreads, numThreads == 1 ? "thread" : "threads" );		//print error message
+                            optarg, numThreads, numThreads == 1 ? "thread" : "threads" );
                     fflush(stderr);
 
                 }
@@ -432,7 +438,7 @@ char* TrimLeft(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) {
         trimChars = "\t\n\v\f\r ";
     }
 
@@ -442,8 +448,8 @@ char* TrimLeft(char* str, const char* trimChars) {
 
     /* Loop While Specified Character Shows */
     while (i < strlen(str) && strchr(trimChars, str[i]) != NULL) {
-        i++;                //increment index
-        newStartingPos++;   //move start position once to the right
+        i++;                		//increment index
+        newStartingPos++;   		//move start position once to the right
     }
 
     /*** *** *** *** *** *** ***
@@ -478,17 +484,17 @@ char* TrimRight(char* str, const char* trimChars) {
     *  Remove Specified Characters
     *** *** *** *** *** *** *** ***/
     /* Set Defaults */
-    if (trimChars == NULL) {            //if trimChars is null
+    if (trimChars == NULL) {
         trimChars = "\t\n\v\f\r ";
     }
 
     /* Set Index */
-    i = strlen(str) - 1;                        //move index to last char
+    i = strlen(str) - 1;			//move index to last char
 
     /* Loop While Specified Character Shows */
     while (i >= 0 && strchr(trimChars, str[i]) != NULL) {
-        str[i] = '\0';      //replace character with null
-        i--;                //decrement string
+        str[i] = '\0';				//replace character with null
+        i--;						//decrement string
     }
 
     /*** *** *** *** *** *** ***
@@ -519,8 +525,8 @@ char* ChangeToLower(char* str) {
     *** *** *** *** *** *** *** ***/
     /* Loop Entire String */
     while (i <= (strlen(str))) {
-        str[i] = tolower(str[i]);   //change to lowercase, overwrite letter
-        i++;                            //increment index
+        str[i] = tolower(str[i]);	//change to lowercase, overwrite letter
+        i++;						//increment index
     }
 
     /*** *** *** *** *** *** ***

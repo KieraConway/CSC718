@@ -162,7 +162,7 @@ int main(int argc, char *argv[]) {
     FileSplitter();
 
     /* Print Variables */
-    printf("\n%d Threads are Searching \'%s\' for \'%s\'...\n\n",
+    printf("\n%d Threads are Searching \'%s\' for \'%s\'...\n",
            maxThreads, fileName, searchTerm);
     fflush(stdout);
 
@@ -170,7 +170,7 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *  Begin Parallelization
      *** *** *** *** *** *** ***/
-    /* Save Program Start Parse Time */
+    /* Save Parse Start Time */
     clock_t parseStart = clock();
 
     for (int i = 0; i < maxThreads; i++) {
@@ -214,7 +214,7 @@ int main(int argc, char *argv[]) {
     sem_destroy(&counter);
 
     /* Print Results */
-    printf("\nThe word \'%s\' appears %d %s\n\n",
+    printf("The word \'%s\' appears %d %s\n\n",
            searchTerm, globalCount, globalCount == 1 ? "time" : "times");
     fflush(stdout);
 

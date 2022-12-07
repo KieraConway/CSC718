@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
 
 
     /* Print Variables */
-    printf("\nSearching \'%s\' for \'%s\'...\n\n", fileName, searchTerm);
+    printf("\nSearching \'%s\' for \'%s\'...\n", fileName, searchTerm);
     fflush(stdout);
 
     /*** *** *** *** *** *** ***
@@ -140,7 +140,7 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *        Parse File
      *** *** *** *** *** *** ***/
-    /* Save Program Start Parse Time */
+    /* Save Parse Start Time */
     clock_t parseStart = clock();
 
     while (fscanf(pInputFile, "%s", word) == 1) {		//while still file data
@@ -173,7 +173,7 @@ int main(int argc, char *argv[]) {
     fclose(pInputFile);
 
     /* Print Results */
-    printf("\nThe word \'%s\' appears %d %s\n\n",
+    printf("The word \'%s\' appears %d %s\n\n",
            searchTerm, count, count == 1 ? "time" : "times");
 
     /* Calculate Runtime */

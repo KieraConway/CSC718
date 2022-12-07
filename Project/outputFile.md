@@ -27,7 +27,7 @@ Sequential Program:
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0251s>
+	< Program Runtime: 0.0251s | File Parse Time: 0.0259s >
 <br><br>
 >./proj_seq -c
 
@@ -35,7 +35,7 @@ Sequential Program:
 	The word 'life' appears 465 times
 
 
-	<Program Runtime: 0.0121s>
+	< Program Runtime: 0.0121s | File Parse Time: 0.0122s >
 <br><br>
 >./proj_seq -v
 
@@ -49,7 +49,7 @@ Sequential Program:
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0284s>
+	< Program Runtime: 0.0251s | File Parse Time: 0.0248s >
 <br><br>
 >./proj_seq -v -s Earth
 
@@ -63,7 +63,7 @@ Sequential Program:
 	The word 'earth' appears 338 times
 
 
-	<Program Runtime: 0.0270s>
+	< Program Runtime: 0.0133s | File Parse Time: 0.0131s >
 
 
 ***
@@ -94,24 +94,20 @@ Semaphore Program:
 
 
 	5 Threads are Searching 'testFile.txt' for 'life'...
-
-
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0357s>
+	< Program Runtime: 0.0357s | File Parse Time: 0.0122s >
 	
 
 <br><br>
 >./proj_sem -c
 
 	5 Threads are Searching 'testFile.txt' for 'life'...
-
-
 	The word 'life' appears 465 times
 
 
-	<Program Runtime: 0.0298s>
+	< Program Runtime: 0.0294s | File Parse Time: 0.0107s >
 
 
 <br><br>
@@ -129,26 +125,26 @@ Semaphore Program:
 
 	5 Threads are Searching 'testFile.txt' for 'life'...
 
-	Thread 1 Starting...
 	Thread 2 Starting...
-	Thread 0 Starting...
 	Thread 3 Starting...
+	Thread 1 Starting...
 	Thread 4 Starting...
-	Thread 1 has found 92 matches, the total match count is now 92
-	Thread 2 has found 94 matches, the total match count is now 186
-	Thread 0 has found 107 matches, the total match count is now 293
+	Thread 0 Starting...
+	Thread 2 has found 94 matches, the total match count is now 94
+	Thread 1 has found 92 matches, the total match count is now 186
+	Thread 4 has found 102 matches, the total match count is now 288
+	Thread 3 has found 98 matches, the total match count is now 386
+	Thread 0 has found 107 matches, the total match count is now 493
 	Thread 0 has terminated successfully
 	Thread 1 has terminated successfully
 	Thread 2 has terminated successfully
-	Thread 3 has found 98 matches, the total match count is now 391
 	Thread 3 has terminated successfully
-	Thread 4 has found 102 matches, the total match count is now 493
 	Thread 4 has terminated successfully
 
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0372s>
+	< Program Runtime: 0.0372s | File Parse Time: 0.0119s >
 	
 <br><br>
 >./proj_sem -v -s Earth
@@ -165,26 +161,26 @@ Semaphore Program:
 
 	5 Threads are Searching 'testFile.txt' for 'earth'...
 
-	Thread 1 Starting...
 	Thread 2 Starting...
-	Thread 0 Starting...
 	Thread 3 Starting...
+	Thread 1 Starting...
 	Thread 4 Starting...
+	Thread 0 Starting...
 	Thread 1 has found 63 matches, the total match count is now 63
-	Thread 3 has found 65 matches, the total match count is now 197
-	Thread 0 has found 69 matches, the total match count is now 132
+	Thread 4 has found 72 matches, the total match count is now 135
+	Thread 3 has found 65 matches, the total match count is now 200
+	Thread 0 has found 69 matches, the total match count is now 269
 	Thread 0 has terminated successfully
 	Thread 1 has terminated successfully
-	Thread 2 has found 69 matches, the total match count is now 266
+	Thread 2 has found 69 matches, the total match count is now 338
 	Thread 2 has terminated successfully
 	Thread 3 has terminated successfully
-	Thread 4 has found 72 matches, the total match count is now 338
 	Thread 4 has terminated successfully
 
 	The word 'earth' appears 338 times
 
 
-	<Program Runtime: 0.0382s>
+	< Program Runtime: 0.0371s | File Parse Time: 0.0119s >
 
 <br><br>
 >./proj_sem -v -t 9 -s Earth
@@ -205,38 +201,38 @@ Semaphore Program:
 
 	9 Threads are Searching 'testFile.txt' for 'earth'...
 
-	Thread 1 Starting...
 	Thread 2 Starting...
-	Thread 0 Starting...
 	Thread 3 Starting...
+	Thread 1 Starting...
 	Thread 4 Starting...
 	Thread 5 Starting...
 	Thread 6 Starting...
 	Thread 7 Starting...
+	Thread 0 Starting...
 	Thread 8 Starting...
-	Thread 1 has found 40 matches, the total match count is now 40
-	Thread 0 has found 39 matches, the total match count is now 152
+	Thread 4 has found 33 matches, the total match count is now 33
+	Thread 5 has found 36 matches, the total match count is now 69
+	Thread 1 has found 40 matches, the total match count is now 141
+	Thread 7 has found 40 matches, the total match count is now 219
+	Thread 6 has found 38 matches, the total match count is now 179
+	Thread 3 has found 32 matches, the total match count is now 101
+	Thread 0 has found 39 matches, the total match count is now 258
 	Thread 0 has terminated successfully
 	Thread 1 has terminated successfully
-	Thread 2 has found 41 matches, the total match count is now 113
-	Thread 2 has terminated successfully
-	Thread 3 has found 32 matches, the total match count is now 72
-	Thread 3 has terminated successfully
-	Thread 4 has found 33 matches, the total match count is now 185
-	Thread 4 has terminated successfully
-	Thread 5 has found 36 matches, the total match count is now 221
-	Thread 5 has terminated successfully
-	Thread 6 has found 38 matches, the total match count is now 259
-	Thread 6 has terminated successfully
 	Thread 8 has found 39 matches, the total match count is now 338
-	Thread 7 has found 40 matches, the total match count is now 299
+	Thread 2 has found 41 matches, the total match count is now 299
+	Thread 2 has terminated successfully
+	Thread 3 has terminated successfully
+	Thread 4 has terminated successfully
+	Thread 5 has terminated successfully
+	Thread 6 has terminated successfully
 	Thread 7 has terminated successfully
 	Thread 8 has terminated successfully
 
 	The word 'earth' appears 338 times
 
 
-	<Program Runtime: 0.0391s>
+	< Program Runtime: 0.0391s | File Parse Time: 0.0139s >
 
 ***
 OMP Program:
@@ -266,12 +262,21 @@ OMP Program:
 
 
 	5 Threads are Searching 'testFile.txt' for 'life'...
-
-
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0963s>
+	< Program Runtime: 0.0732s | File Parse Time: 0.0113s >
+
+<br><br>	
+>./proj_omp -c
+
+	5 Threads are Searching 'testFile.txt' for 'life'...
+
+
+	The word 'life' appears 465 times
+
+
+	< Program Runtime: 0.0714s | File Parse Time: 0.0155s >
 	
 <br><br>	
 >./proj_omp -v
@@ -285,24 +290,24 @@ OMP Program:
 	Temp File '4' created and opened successfully
 
 	File 'testFile.txt' parsed and closed successfully
-
+	
 	5 Threads are Searching 'testFile.txt' for 'life'...
 
 	Thread 4 Starting...
+	Thread 4 has found 102 matches, the total match count is now 102
 	Thread 0 Starting...
 	Thread 2 Starting...
-	Thread 3 Starting...
 	Thread 1 Starting...
-	Thread 0 has found 107 matches, the total match count is now 107
-	Thread 2 has found 94 matches, the total match count is now 201
-	Thread 1 has found 92 matches, the total match count is now 391
-	Thread 3 has found 98 matches, the total match count is now 299
-	Thread 4 has found 102 matches, the total match count is now 493
+	Thread 3 Starting...
+	Thread 0 has found 107 matches, the total match count is now 395
+	Thread 3 has found 98 matches, the total match count is now 464
+	Thread 2 has found 94 matches, the total match count is now 483
+	Thread 1 has found 92 matches, the total match count is now 493
 
 	The word 'life' appears 493 times
 
 
-	<Program Runtime: 0.0848s>
+	< Program Runtime: 0.0742s | File Parse Time: 0.0223s >
 	
 <br><br>	
 >./proj_omp -v -s Earth
@@ -319,21 +324,21 @@ OMP Program:
 
 	5 Threads are Searching 'testFile.txt' for 'earth'...
 
-	Thread 0 Starting...
-	Thread 3 Starting...
 	Thread 4 Starting...
-	Thread 2 Starting...
+	Thread 0 Starting...
+	Thread 0 has found 69 matches, the total match count is now 87
 	Thread 1 Starting...
-	Thread 0 has found 69 matches, the total match count is now 69
-	Thread 3 has found 65 matches, the total match count is now 134
-	Thread 2 has found 69 matches, the total match count is now 275
-	Thread 4 has found 72 matches, the total match count is now 206
-	Thread 1 has found 63 matches, the total match count is now 338
+	Thread 1 has found 63 matches, the total match count is now 150
+	Thread 2 Starting...
+	Thread 2 has found 69 matches, the total match count is now 219
+	Thread 3 Starting...
+	Thread 3 has found 65 matches, the total match count is now 284
+	Thread 4 has found 72 matches, the total match count is now 338
 
 	The word 'earth' appears 338 times
 
 
-	<Program Runtime: 0.0701s>
+	< Program Runtime: 0.0701s | File Parse Time: 0.0394s >
 	
 <br><br>	
 >./proj_omp -v -t 9 -s Earth
@@ -376,4 +381,4 @@ OMP Program:
 	The word 'earth' appears 338 times
 
 
-	<Program Runtime: 0.0925s>
+	< Program Runtime: 0.0700s | File Parse Time: 0.0203s >
