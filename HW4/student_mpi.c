@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------------------
-    student_omp.c
+    student_mpi.c
 
     CSC 718
     Operating Systems & Parallel Programming
@@ -27,6 +27,7 @@
 
 /* Standard Libraries */
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <time.h>
 #include <locale.h>
@@ -56,11 +57,14 @@ struct procInfo {
 #define MAX_ID 999999
 
 /** ----------------------------- Global -------------------------------- **/
+bool verbose = false;
 
 /** ----------------------------- Prototypes ---------------------------- **/
 bool ContainsConsecutiveValues(int studentID);
 bool ComputesInvalidSum(int studentID);
 void FindRange(pProc p, int max, int numProcs);
+void ProcessArgs(int argc, char ** argv);
+void Usage();
 /** ----------------------------- Functions ----------------------------- **/
 
 /*****************************************************
@@ -78,7 +82,6 @@ int main(int argc, char *argv[]) {
     *  Program Initialization
     *** *** *** *** *** *** ***/
     /* Program Initialization */
-    int sid = 100000;               //starts here since 0 cannot be first value
     int localCount = 0;				//local number of valid sids (one process)
     int totalCount = 0;		        //total number of valid sids (all processes)
     double elapsed_time;
@@ -93,6 +96,10 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);		//Determines the rank (PID) of the calling process
     MPI_Comm_size(MPI_COMM_WORLD, &numProcs);	//Determines size of the processor group associated
 
+    if(verbose){
+        printf("Process %d starting... \n", rank);
+    }
+    
     /* Initialize Process Information */
     proc process;
 
@@ -102,19 +109,22 @@ int main(int argc, char *argv[]) {
     /* Determine Process Section */
     FindRange(&process, MAX_ID, numProcs);
 
-
     /*** *** *** *** *** *** ***
      *     Find Valid SIDs
      *** *** *** *** *** *** ***/
+    if(verbose){
+        printf("Process %d searching sid range: %d-%d \n", rank, process.start, process.end);
+    }
     for(int localSID = process.start; localSID <= process.end; localSID++){
 
         if(localSID > 100000){
-            if((!ContainsConsecutiveValues(sid)) && (!ComputesInvalidSum(sid))){
+            if((!ContainsConsecutiveValues(localSID)) && (!ComputesInvalidSum(localSID))){
                 localCount += 1;
             }
         }
-
-        localSID+=1;
+    }
+    if(verbose){
+        printf("Process %d found %d valid SIDs \n", rank, localCount);
     }
 
     /*** *** *** *** *** *** ***
@@ -139,7 +149,7 @@ int main(int argc, char *argv[]) {
         setlocale(LC_NUMERIC, "");
         printf("There are %'d valid student IDs\n", totalCount);
         fflush (stdout);
-        
+
         printf("\n%-1s %-10s %-5.4fs %-1s\n\n",
                "<","Program Runtime:", elapsed_time, ">");
         fflush (stdout);
@@ -168,7 +178,7 @@ bool ContainsConsecutiveValues(int studentID){
         digit = studentID % 10;     //obtain far right value
 
         if(!firstIteration && prevDigit == digit){  //compare to previous value
-                return true;        //return true if values match
+            return true;        //return true if values match
         }
 
         prevDigit = digit;          //save new 'previous value'
@@ -240,3 +250,71 @@ void FindRange(pProc p, int max, int numProcs){
 
     printf("%d: %d-%d\n", p->pid, p->start, p->end);
 }
+
+
+/* ------------------------------------------------------------------------
+  Name -            ProcessArgs
+  Purpose -         Process user arguments
+  Parameters -      argc:   number of arguments passed to program
+                    argv:   pointer to arguments passed to program
+  Returns -         None
+  Side Effects -    When necessary, updates global variables
+  ----------------------------------------------------------------------- */
+void ProcessArgs(int argc, char ** argv){
+
+    /*** *** *** *** *** *** ***
+      *     Process Arguments
+      *** *** *** *** *** *** ***/
+    /* Get Input */
+    int input = 0;
+    int threads = 0;
+
+    input = getopt( argc, argv,"hvt:" );
+
+    /* Handle if No Arguments */
+    if (input == -1){
+        printf("Note: Defaults Set [No Arguments Given]\n\n");
+        fflush(stdout);
+        return;
+    }
+
+    /* Process All Arguments */
+    while (input != -1) {
+        switch (input) {
+
+            /* Verbose Mode */
+            case 'v':
+                verbose = true;
+                break;
+
+            /* Access Help Menu */
+            case 'h':
+            default:
+                Usage();
+                exit(0);
+        }
+
+        input = getopt( argc, argv, "hvt:" );
+    }
+}
+
+
+/* ------------------------------------------------------------------------
+  Name -            Usage
+  Purpose -         Prints Help Menu
+  Parameters -      None
+  Returns -         None
+  Side Effects -    None
+  ----------------------------------------------------------------------- */
+void Usage(){
+
+    printf("\nAn MPI Program for counting 'acceptable' unique student id numbers\n"
+           "ver 1.0, 2022\n\n"
+           "Usage: student_mpi -h -v\n\n"
+           "\t%-14s %-24s %-16s\n\n"
+           "\t%-14s %-24s %-8s %-12s %-3s %-5s\n",
+
+           "-h:", "Display Usage summary", "Example: proj_seq -h",
+           "-v:", "Set Verbose Mode", "Default:", verbose == true ? "True" : "False", "|", "Example: proj_seq -v");
+}
+

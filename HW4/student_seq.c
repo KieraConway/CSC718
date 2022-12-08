@@ -36,6 +36,7 @@
 /** ----------------------------- Macros -------------------------------- **/
 
 /** ----------------------------- Constants ----------------------------- **/
+#define MAX_ID 999999
 
 /** ----------------------------- Global -------------------------------- **/
 
@@ -69,7 +70,7 @@ int main(int argc, char *argv[]) {
     /*** *** *** *** *** *** ***
      *     Find Valid SIDs
      *** *** *** *** *** *** ***/
-    while(sid != 999999){
+    while(sid != MAX_ID){
 
         if((!ContainsConsecutiveValues(sid)) && (!ComputesInvalidSum(sid))){
             count += 1;
