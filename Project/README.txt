@@ -51,13 +51,21 @@ Contents:
 			large file
 
 	FILES -
+		Conway, Kiera - HW3 Questions [Final]:		
+			Document which provides an overview of the project including file contents, 
+			purpose, benchmarking, review, and program process, compilation, and 
+			execution.
+			Attached in both a .pdf and .docx for compatibility
 	
-		outputFile.md
-		outputFile.txt:	Example output of each program
+		outputFile.md:
+		outputFile.txt:
+			Example output of each program
+			Attached in both a .md and .txt for compatibility
 
 
-		README.txt:		General information regarding project
-
+		README.txt:
+			[Current File] 
+			General information regarding project
 
 
 Notes:
