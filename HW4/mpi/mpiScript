@@ -1,0 +1,15 @@
+#!/bin/bash
+
+mpicc student_mpi.c -o student_mpi
+scp /path/to/file/student_mpi mpiuser@Lincoln:/path/to/file/
+scp /path/to/file/student_mpi mpiuser@Washington:/path/to/file/
+scp /path/to/file/student_mpi mpiuser@Roosevelt:/path/to/file/
+
+#Note: Remove the machine you are currently on above
+
+# To Create Executable: 
+#	chmod +x ./mpiScript 
+#
+# For 'Bad Interpreter Error, type:
+#	sed -i -e 's/\r$//' mpiScript
+

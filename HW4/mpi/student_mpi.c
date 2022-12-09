@@ -110,9 +110,6 @@ int main(int argc, char *argv[]) {
      *     Find Valid SIDs
      *** *** *** *** *** *** ***/
 
-    printf("Process %d searching sid range: %d-%d \n", rank, process.start, process.end);
-    fflush(stdout);
-
     for(int localSID = process.start; localSID <= process.end; localSID++){
 
         if(localSID > 100000){
@@ -246,5 +243,6 @@ void FindRange(pProc p, int max, int numProcs){
         }
     }
 
-    printf("%d: %d-%d\n", p->pid, p->start, p->end);
+    printf("Process %d searching SID range %d-%d\n", p->pid, p->start, p->end);
+    fflush(stdout);
 }

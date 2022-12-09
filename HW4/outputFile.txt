@@ -1,0 +1,123 @@
+===================================================
+				Sequential Program:
+===================================================
+
+./student_seq
+
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.1058s >
+
+
+===================================================
+					MPI Program:
+===================================================
+
+./mpirun -np 1 -machinefile machinefile.dsu ./student_mpi
+
+	Process 0 starting... 
+	Process 0 searching SID range 1-999999
+	Process 0 found 527787 valid SIDs 
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0961s >
+
+
+./mpirun -np 2 -machinefile machinefile.dsu ./student_mpi
+
+	Process 1 starting... 
+	Process 0 starting... 
+	Process 1 searching SID range 499999-999999
+	Process 0 searching SID range 1-499999
+	Process 1 found 294697 valid SIDs 
+	Process 0 found 233090 valid SIDs 
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0580s >
+
+
+./mpirun -np 3 -machinefile machinefile.dsu ./student_mpi
+	
+	Process 0 starting... 
+	Process 2 starting... 
+	Process 1 starting... 
+	Process 0 searching SID range 1-333333
+	Process 2 searching SID range 666667-999999
+	Process 1 searching SID range 333333-666667
+	Process 0 found 135196 valid SIDs 
+	Process 1 found 195893 valid SIDs 
+	Process 2 found 196698 valid SIDs 
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0385s >
+
+
+./mpirun -np 4 -machinefile machinefile.dsu ./student_mpi
+
+	Process 3 starting... 
+	Process 1 starting... 
+	Process 0 starting... 
+	Process 0 searching SID range 1-249999
+	Process 2 starting... 
+	Process 2 searching SID range 499999-749999
+	Process 1 searching SID range 249999-499999
+	Process 3 searching SID range 749999-999999
+	Process 0 found 83336 valid SIDs 
+	Process 2 found 150404 valid SIDs 
+	Process 1 found 149754 valid SIDs 
+	Process 3 found 144293 valid SIDs 
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0656s >
+
+
+===================================================
+					OMP Program:
+===================================================
+
+./student_omp -v -t 1
+
+	Number of threads = 1
+
+	Thread 0 starting...
+
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0796s >
+
+./student_omp -v -t 2
+
+	Number of threads = 2
+
+	Thread 0 starting...
+	Thread 1 starting...
+
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0780s >
+
+./student_omp -v -t 3
+
+	Number of threads = 3
+
+	Thread 0 starting...
+	Thread 2 starting...
+	Thread 1 starting...
+
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0732s >
+
+
+./student_omp -v -t 4
+
+	Number of threads = 4
+
+	Thread 0 starting...
+	Thread 3 starting...
+	Thread 2 starting...
+	Thread 1 starting...
+
+	There are 527,787 valid student IDs
+
+	< Program Runtime: 0.0882s >

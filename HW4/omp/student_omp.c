@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     if (tid == 0 && verbose) {
         nThreads = omp_get_num_threads();
-        printf("Number of threads = %d\n", nThreads);
+        printf("Number of threads = %d\n\n", nThreads);
     }
 
     if(verbose){
@@ -104,14 +104,13 @@ int main(int argc, char *argv[]) {
      *     Find Valid SIDs
      *** *** *** *** *** *** ***/
 #pragma omp for reduction(+:count)
-    {
         for(localSID = sid; localSID <= MAX_ID; localSID++){
 
             if((!ContainsConsecutiveValues(localSID)) && (!ComputesInvalidSum(localSID))){
                 count = count + 1;
             }
         }
-    }
+   
 
 }
 
@@ -120,7 +119,7 @@ int main(int argc, char *argv[]) {
      *** *** *** *** *** *** ***/
     /* Print Results */
     setlocale(LC_NUMERIC, "");
-    printf("There are %'d valid student IDs\n", count);
+    printf("\nThere are %'d valid student IDs\n", count);
 
     /* Calculate Runtime */
     stop = omp_get_wtime();
@@ -234,7 +233,7 @@ void ProcessArgs(int argc, char ** argv){
 
                 threads = atoi(optarg);     //set thread value
 
-                if(threads > THREAD_LOW && threads < THREAD_MAX){                 //verify thread range
+                if(threads >= THREAD_LOW && threads <= THREAD_MAX){                 //verify thread range
                     maxThreads = threads;
                 }
                 else{
