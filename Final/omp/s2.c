@@ -90,27 +90,8 @@ int main(int argc, char *argv[]) {
         /* Init Digits to 0 */
         for (digit = 0; digit < d + 11; ++digit)
             digits[digit] = 0;
-#pragma omp parallel shared(nThreads) private(tid) num_threads(t)
-{
-        /*** *** *** *** *** *** ***
-         * Print Thread Information
-         *** *** *** *** *** *** ***/
-         /* General Thread Information */
-        tid = omp_get_thread_num();
 
-#pragma omp single
-        {
-            //omp single: executed by single thread, implicit barrier upon completion of the region
-
-            nThreads = omp_get_num_threads();
-            printf("Number of threads = %d\n\n", nThreads);
-            fflush(stdout);
-        }
-
-        printf("Thread %d starting...\n",tid);
-        fflush(stdout);
-}
-#pragma omp parallel for private(i, remainder, digit, mod, div) num_threads(t)
+#pragma omp parallel for private(i, remainder, digit) num_threads(t)
         /*** *** *** *** *** *** ***
          *      Calculate HPS
          *** *** *** *** *** *** ***/
@@ -127,12 +108,10 @@ int main(int argc, char *argv[]) {
             }
         }
 
-
     /* step r1:
      *      init regrouping, from d+11-1 to 1
      *      regroup any digits[i] > 10
      */
-
     for (i = d + 11 - 1; i > 0; --i)
     {
         digits[i - 1] += digits[i] / 10;
@@ -152,7 +131,6 @@ int main(int argc, char *argv[]) {
      *      init regrouping again because of r2
      *      regroup any digits[i] > 10
      */
-
     for (i = d; i > 0; --i)
     {
         digits[i - 1] += digits[i] / 10;
@@ -163,7 +141,7 @@ int main(int argc, char *argv[]) {
      *      Print Sum
      *** *** *** *** *** *** ***/
     /* Print Digits Left of Decimal */
-    printf("\n\nS(n) = %ld.", digits[0]);
+    printf("%ld.", digits[0]);
 
     /* Print Digits Right of Decimal */
     for (i = 1; i <= d; ++i)

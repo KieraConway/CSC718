@@ -21,12 +21,29 @@ For example S(7) = 2.592857142857 to 12 digits of precison.
 
 */
 
-/* Standard Libraries */
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
+#include <math.h>
 #include <omp.h>
 
+/** ----------------------------- Constants ----------------------------- **/
+#define debugging true
+/** ----------------------------- Global -------------------------------- **/
+/** ----------------------------- Macros -------------------------------- **/
+/*
+ * Function Keys
+ *      i : pid/rank
+ *      n : max value
+ *      p : total processes
+ */
+#define FIND_START(i,n,p)	floor((i*n)/(p))
+#define FIND_END(i,n,p)     (floor((i+1)*(n)/(p)))-1
+/** ----------------------------- Prototypes ---------------------------- **/
+
+/** ----------------------------- Functions ----------------------------- **/
 
 /*****************************************************
  *
@@ -45,11 +62,12 @@ int main(int argc, char *argv[]) {
     *** *** *** *** *** *** ***/
 
     /* Initialize Local Variables */
-    long unsigned int *digits;
+    long unsigned int *localDigits;
     long unsigned int remainder, div, mod;
-    int i, digit;
+    int i, localDigit;
 
     int tid, nThreads;
+    int blockStart, blockEnd;
     double start, stop;
 
     /* Save Program Start Time */
@@ -74,24 +92,8 @@ int main(int argc, char *argv[]) {
     int d = atoi((char*)argv[2]);	// numbers of localDigits
     int t = atoi((char*)argv[3]);	// numbers of threads
 
-
-        /*** *** *** *** *** *** ***
-         * Allocate Digits Variable
-         *** *** *** *** *** *** ***/
-        /* Allocate Memory for Digits */
-        digits = (long unsigned int *)malloc(sizeof(long unsigned int) * (d+11));
-        if (!digits)
-        {
-            printf("memory allocation failed\n");
-            exit(-1);
-        }
-
-
-        /* Init Digits to 0 */
-        for (digit = 0; digit < d + 11; ++digit)
-            digits[digit] = 0;
-#pragma omp parallel shared(nThreads) private(tid) num_threads(t)
-{
+#pragma omp parallel shared(nThreads) private(tid, localDigits, localDigit, blockStart, blockEnd, div, mod, remainder) num_threads(t)
+    {
         /*** *** *** *** *** *** ***
          * Print Thread Information
          *** *** *** *** *** *** ***/
@@ -109,73 +111,94 @@ int main(int argc, char *argv[]) {
 
         printf("Thread %d starting...\n",tid);
         fflush(stdout);
-}
-#pragma omp parallel for private(i, remainder, digit, mod, div) num_threads(t)
+
+        /* Block Allocation */
+        blockStart =  FIND_START(tid, n, nThreads) + (double) 1;
+        blockEnd = FIND_END(tid, n, nThreads) + (double) 1;
+
+        printf("Thread %d calculating harmonic progression sum for [1/%d] -> [1/%d]\n",
+               tid, blockStart, blockEnd);
+        fflush(stdout);
+
+        /*** *** *** *** *** *** ***
+         * Allocate Digits Variable
+         *** *** *** *** *** *** ***/
+        /* Allocate Memory for Digits */
+        localDigits = (long unsigned int *)malloc(sizeof(long unsigned int) * (d + 11));
+        if (!localDigits) {
+            printf("Thread %d Error: memory allocation failed\n", tid);
+            exit(-1);
+        }
+        /* Init Digits to 0 */
+        for (localDigit = 0; localDigit < d + 11; ++localDigit)
+            localDigits[localDigit] = 0;
+
         /*** *** *** *** *** *** ***
          *      Calculate HPS
          *** *** *** *** *** *** ***/
-        /* Calculate HPS saving each digit in digits[i] */
-        for (i = 1; i <= n; ++i)
+        /* Calculate HPS saving each localDigit in localDigits[i] */
+        for (i = blockStart; i <= blockEnd; ++i)
         {
             remainder = 1;
-            for (digit = 0; digit < d + 11 && remainder; ++digit) 	{
+            for (localDigit = 0; localDigit < d + 11 && remainder; ++localDigit) 	{
                 div = remainder / i;
                 mod = remainder % i;
-#pragma omp atomic
-                digits[digit] += div;
+                localDigits[localDigit] += div;
                 remainder = mod * 10;
             }
         }
+        /* step r1:
+         *      init regrouping, from d+11-1 to 1
+         *      regroup any localDigits[i] > 10
+         */
+        for (i = d + 11 - 1; i > 0; --i)
+        {
+            localDigits[i - 1] += localDigits[i] / 10;
+            localDigits[i] %= 10;
+        }
 
-
-    /* step r1:
-     *      init regrouping, from d+11-1 to 1
-     *      regroup any digits[i] > 10
-     */
-
-    for (i = d + 11 - 1; i > 0; --i)
-    {
-        digits[i - 1] += digits[i] / 10;
-        digits[i] %= 10;
     }
 
+
+
+
+
     /* step r2:
-     *      skip all the digits after d
-     *      round if digits[i] > 5
+     *      skip all the localDigits after d
+     *      round if localDigits[i] > 5
      */
-    if (digits[d + 1] >= 5)
+    if (localDigits[d + 1] >= 5)
     {
-        ++digits[d];
+        ++localDigits[d];
     }
 
     /* step r3:
      *      init regrouping again because of r2
-     *      regroup any digits[i] > 10
+     *      regroup any localDigits[i] > 10
      */
-
     for (i = d; i > 0; --i)
     {
-        digits[i - 1] += digits[i] / 10;
-        digits[i] %= 10;
+        localDigits[i - 1] += localDigits[i] / 10;
+        localDigits[i] %= 10;
     }
 
     /*** *** *** *** *** *** ***
      *      Print Sum
      *** *** *** *** *** *** ***/
     /* Print Digits Left of Decimal */
-    printf("\n\nS(n) = %ld.", digits[0]);
+    printf("%ld.", localDigits[0]);
 
     /* Print Digits Right of Decimal */
     for (i = 1; i <= d; ++i)
     {
-        printf("%ld",digits[i]);
+        printf("%ld", localDigits[i]);
     }
     printf("\n");
 
     /*** *** *** *** *** *** ***
      *Deallocate Digits Variable
      *** *** *** *** *** *** ***/
-    free(digits);
+    free(localDigits);
 
     /*** *** *** *** *** *** ***
      *  Program Termination

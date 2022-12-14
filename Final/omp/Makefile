@@ -1,5 +1,5 @@
 #
-# Makefile for pX_omp Programs
+# Makefile for X_omp Program(s)
 #
 # "make program" to make one program
 # "make" or "make all" to make all executables
@@ -14,7 +14,7 @@ CCFLAGS     = -O3 -fopenmp   ### -Wall -pedantic
 
 LFLAGS      = -lm 
 
-ALL =   student_omp
+ALL =   hps_omp
 
 .PHONY:  all
 all:  $(ALL)
