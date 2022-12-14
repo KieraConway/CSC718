@@ -62,8 +62,7 @@ void FindRange(pProc p, int max, int numProcs);
  *      argv - main parameter for argument values
  *
 ******************************************************/
-int main(int argc, const char **argv)
-{
+int main(int argc, char *argv[]) {
 
     /*** *** *** *** *** *** ***
     *  Program Initialization
@@ -72,19 +71,41 @@ int main(int argc, const char **argv)
     long unsigned int *localDigits;
     long unsigned int *globalDigits;
     long unsigned int remainder, div, mod;
-    int i, localDigitIndex, globalDigitIndex;
-    int n, d;
+    int i, n, d, localDigitIndex, globalDigitIndex;
 
     double elapsed_time;
     int numProcs, rank;
 
+    /*** *** *** *** *** *** ***
+    *  Parse User Input
+    *** *** *** *** *** *** ***/
+    /* Read in Input */
+    if (argc != 3)
+    {
+        printf("usage: hps n d\n");
+        printf("    n: value of N (Example: 5 => 1/1 + 1/2 + 1/3 + 1/4 + 1/5)\n");
+        printf("    d: numbers of Digits (Example: 5 => 0,xxxxx) \n");
+        exit(-1);
+    }
+
+    /* Save Input */
+    n = atoi((char*)argv[1]);	// value of N
+    d = atoi((char*)argv[2]);	// numbers of localDigits
+
+
+    /*** *** *** *** *** *** *** *** ***
+     * Allocate Global Digits Variable
+     *** *** *** *** *** *** *** *** ***/
     /* Allocate Memory for Global Digits */
-    localDigits = (long unsigned int *)malloc(sizeof(long unsigned int) * (d + 11));
-    if (!localDigits)
+    globalDigits = (long unsigned int *)malloc(sizeof(long unsigned int) * (d + 11));
+    if (!globalDigits)
     {
         printf("memory allocation failed\n");
         exit(-1);
     }
+    /* Init Local Digits to 0 */
+    for (globalDigitIndex = 0; globalDigitIndex < d + 11; ++globalDigitIndex)
+        globalDigits[globalDigitIndex] = 0;
 
     /*** *** *** *** *** *** ***
     *  Process Initialization
@@ -106,27 +127,6 @@ int main(int argc, const char **argv)
 
     process.start = process.end = 0;
     process.pid = rank;
-
-    /*** *** *** *** *** *** ***
-    *  Parse User Input
-    *** *** *** *** *** *** ***/
-    if(process.pid == 0){
-        /* Read in Input */
-        if (argc != 3)
-        {
-            printf("usage: hps n d\n");
-            printf("    n: value of N (Example: 5 => 1/1 + 1/2 + 1/3 + 1/4 + 1/5)\n");
-            printf("    d: numbers of Digits (Example: 5 => 0,xxxxx) \n");
-            exit(-1);
-        }
-
-        /* Save Input */
-        n = atoi((char*)argv[1]);	// value of N
-        d = atoi((char*)argv[2]);	// numbers of localDigits
-
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);    //ensure user input has been read by proc 0
 
     /* Determine Process Section */
     FindRange(&process, n, numProcs);
@@ -155,6 +155,8 @@ int main(int argc, const char **argv)
     {
         remainder = 1;
         for (localDigitIndex = 0; localDigitIndex < d + 11 && remainder; ++localDigitIndex) 	{
+            int before = localDigits[localDigitIndex];	//todo remove
+
             div = remainder / i;
             mod = remainder % i;
             localDigits[localDigitIndex] += div;
@@ -172,50 +174,49 @@ int main(int argc, const char **argv)
         localDigits[i] %= 10;
     }
 
-    //todo: REMOVE BELOW
-    /* Print Digits Left of Decimal */
-    printf("%d[%d]: %ld.", process.pid, "0", localDigits[0]);
-
-    /* Print Digits Right of Decimal */
-    for (i = 1; i <= d; ++i)
-    {
-        printf("%d[%d]: %ld", process.pid, i, localDigits[i]);
-    }
-    printf("\n");
-    //todo: end Remove
 
     /*** *** *** *** *** *** ***
      * Terminate Parallelization
      *** *** *** *** *** *** ***/
-    MPI_Reduce (&localDigits,
-                &globalDigits,
-                1,
+
+    MPI_Reduce (localDigits,
+                globalDigits,
+                (d+11),
                 MPI_LONG,
                 MPI_SUM,
                 0,
                 MPI_COMM_WORLD);				//Reduces values on all processes within a group
 
+    if(process.pid == 0){
+
+        /* step r2:
+         *      skip all the localDigits after d
+         *      round if localDigits[i] > 5
+         */
+        if (globalDigits[d + 1] >= 5)
+        {
+            ++globalDigits[d];
+        }
+
+        /* step r3:
+         *      init regrouping again because of r2
+         *      regroup any localDigits[i] > 10
+         */
+        for (i = d; i > 0; --i)
+        {
+            globalDigits[i - 1] += globalDigits[i] / 10;
+            globalDigits[i] %= 10;
+        }
+    }
+    
+
+    /*** *** *** *** *** *** ***
+     * Terminate Parallelization
+     *** *** *** *** *** *** ***/
+    free(localDigits);
+    elapsed_time += MPI_Wtime();				//Calculate elapsed time
     MPI_Finalize();								//Terminates MPI execution environment
 
-
-    /* step r2:
-     *      skip all the localDigits after d
-     *      round if localDigits[i] > 5
-     */
-    if (globalDigits[d + 1] >= 5)
-    {
-        ++globalDigits[d];
-    }
-
-    /* step r3:
-     *      init regrouping again because of r2
-     *      regroup any localDigits[i] > 10
-     */
-    for (i = d; i > 0; --i)
-    {
-        globalDigits[i - 1] += globalDigits[i] / 10;
-        globalDigits[i] %= 10;
-    }
 
     /*** *** *** *** *** *** ***
      *      Print Sum
@@ -224,7 +225,7 @@ int main(int argc, const char **argv)
         /* Print Results */
 
         // Print Digits Left of Decimal
-        printf("%ld.", globalDigits[0]);
+        printf("\n\n S(n) = %ld.", globalDigits[0]);
 
         // Print Digits Right of Decimal
         for (i = 1; i <= d; ++i)
@@ -233,28 +234,14 @@ int main(int argc, const char **argv)
         }
         printf("\n");
         fflush (stdout);
-    }
 
-    /*** *** *** *** *** *** *** ***
-     *  Deallocate Digits Variable
-     *** *** *** *** *** *** *** ***/
-    free(localDigits);
-    free(globalDigits);
-
-    /*** *** *** *** *** *** ***
-     *  Program Termination
-     *** *** *** *** *** *** ***/
-    elapsed_time += MPI_Wtime();				//Calculate elapsed time
-
-    if (!rank) {								//if process 0
-
-        /* Print Results */
         // Print Program Runtime
         printf("\n%-1s %-10s %-5.4fs %-1s\n\n",
                "<","Program Runtime:", elapsed_time, ">");
         fflush (stdout);
     }
 
+    free(globalDigits);
     return 0;
 }
 
@@ -270,8 +257,8 @@ int main(int argc, const char **argv)
 void FindRange(pProc p, int max, int numProcs){
 
     p->start = FIND_START(p->pid, max, numProcs) + (double) 1;
-    p->end = FIND_END(p->pid, max, numProcs)+ (double) 1;
+    p->end = FIND_END(p->pid, max, numProcs) + (double) 1;
 
-    printf("Process %d searching SID range %d-%d\n", p->pid, p->start, p->end);
+    printf("Process %d calculating harmonic progression sum for [1/%d] -> [1/%d]\n", p->pid, p->start, p->end);
     fflush(stdout);
 }
