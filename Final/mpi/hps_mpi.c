@@ -26,6 +26,7 @@ For example S(7) = 2.592857142857 to 12 digits of precison.
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <locale.h>
 #include <mpi.h>			// Message Passing Interface
 
 /** ----------------------------- Structures ---------------------------- **/
@@ -72,26 +73,10 @@ int main(int argc, const char **argv)
     long unsigned int *globalDigits;
     long unsigned int remainder, div, mod;
     int i, localDigitIndex, globalDigitIndex;
+    int n, d;
 
     double elapsed_time;
     int numProcs, rank;
-
-    /*** *** *** *** *** *** ***
-     *    Parse User Input
-     *** *** *** *** *** *** ***/
-
-    /* Read in Input */
-    if (argc != 3)
-    {
-        printf("usage: hps n d\n");
-        printf("    n: value of N (Example: 5 => 1/1 + 1/2 + 1/3 + 1/4 + 1/5)\n");
-        printf("    d: numbers of Digits (Example: 5 => 0,xxxxx) \n");
-        exit(-1);
-    }
-
-    /* Save Input */
-    int n = atoi((char*)argv[1]);	// value of N
-    int d = atoi((char*)argv[2]);	// numbers of localDigits
 
     /* Allocate Memory for Global Digits */
     localDigits = (long unsigned int *)malloc(sizeof(long unsigned int) * (d + 11));
@@ -121,6 +106,27 @@ int main(int argc, const char **argv)
 
     process.start = process.end = 0;
     process.pid = rank;
+
+    /*** *** *** *** *** *** ***
+    *  Parse User Input
+    *** *** *** *** *** *** ***/
+    if(process.pid == 0){
+        /* Read in Input */
+        if (argc != 3)
+        {
+            printf("usage: hps n d\n");
+            printf("    n: value of N (Example: 5 => 1/1 + 1/2 + 1/3 + 1/4 + 1/5)\n");
+            printf("    d: numbers of Digits (Example: 5 => 0,xxxxx) \n");
+            exit(-1);
+        }
+
+        /* Save Input */
+        n = atoi((char*)argv[1]);	// value of N
+        d = atoi((char*)argv[2]);	// numbers of localDigits
+
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);    //ensure user input has been read by proc 0
 
     /* Determine Process Section */
     FindRange(&process, n, numProcs);
@@ -184,11 +190,10 @@ int main(int argc, const char **argv)
     MPI_Reduce (&localDigits,
                 &globalDigits,
                 1,
-                MPI_INT,
+                MPI_LONG,
                 MPI_SUM,
                 0,
                 MPI_COMM_WORLD);				//Reduces values on all processes within a group
-    elapsed_time += MPI_Wtime();				//Calculate elapsed time
 
     MPI_Finalize();								//Terminates MPI execution environment
 
@@ -215,32 +220,40 @@ int main(int argc, const char **argv)
     /*** *** *** *** *** *** ***
      *      Print Sum
      *** *** *** *** *** *** ***/
-    /* Print Digits Left of Decimal */
-    printf("%ld.", globalDigits[0]);
+    if (!rank) {								//if process 0
+        /* Print Results */
 
-    /* Print Digits Right of Decimal */
-    for (i = 1; i <= d; ++i)
-    {
-        printf("%ld", globalDigits[i]);
+        // Print Digits Left of Decimal
+        printf("%ld.", globalDigits[0]);
+
+        // Print Digits Right of Decimal
+        for (i = 1; i <= d; ++i)
+        {
+            printf("%ld", globalDigits[i]);
+        }
+        printf("\n");
+        fflush (stdout);
     }
-    printf("\n");
 
-    /*** *** *** *** *** *** ***
-     *Deallocate Digits Variable
-     *** *** *** *** *** *** ***/
+    /*** *** *** *** *** *** *** ***
+     *  Deallocate Digits Variable
+     *** *** *** *** *** *** *** ***/
     free(localDigits);
     free(globalDigits);
 
     /*** *** *** *** *** *** ***
-    *  Program Termination
+     *  Program Termination
      *** *** *** *** *** *** ***/
+    elapsed_time += MPI_Wtime();				//Calculate elapsed time
 
-    /* Calculate Runtime */
-    clock_t end = clock();
-    double programTime = (double)(end - start) / CLOCKS_PER_SEC; //calculate program runtime
+    if (!rank) {								//if process 0
 
-    printf("\n%-1s %-10s %-5.4fs %-1s\n\n",
-           "<","Program Runtime:", programTime, ">");
+        /* Print Results */
+        // Print Program Runtime
+        printf("\n%-1s %-10s %-5.4fs %-1s\n\n",
+               "<","Program Runtime:", elapsed_time, ">");
+        fflush (stdout);
+    }
 
     return 0;
 }
