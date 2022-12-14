@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
         /* Init Digits to 0 */
         for (digit = 0; digit < d + 11; ++digit)
             digits[digit] = 0;
-#pragma omp parallel shared(nThreads) private(tid) num_threads(t)
+#pragma omp parallel shared(nThreads) private(tid, i, remainder, digit, mod, div) num_threads(t)
 {
         /*** *** *** *** *** *** ***
          * Print Thread Information
@@ -109,8 +109,8 @@ int main(int argc, char *argv[]) {
 
         printf("Thread %d starting...\n",tid);
         fflush(stdout);
-}
-#pragma omp parallel for private(i, remainder, digit, mod, div) num_threads(t)
+
+#pragma omp for
         /*** *** *** *** *** *** ***
          *      Calculate HPS
          *** *** *** *** *** *** ***/
@@ -126,7 +126,7 @@ int main(int argc, char *argv[]) {
                 remainder = mod * 10;
             }
         }
-
+}
 
     /* step r1:
      *      init regrouping, from d+11-1 to 1

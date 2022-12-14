@@ -154,7 +154,7 @@ int main(int argc, char *argv[]) {
     for (i = process.start; i <= process.end; ++i)
     {
         remainder = 1;
-        for (localDigitIndex = 0; localDigitIndex < d + 11 && remainder; ++localDigitIndex) 	{
+        for (localDigitIndex = 0; localDigitIndex < d + 11 && remainder; ++localDigitIndex){
             int before = localDigits[localDigitIndex];	//todo remove
 
             div = remainder / i;

@@ -1,0 +1,128 @@
+Sequential Program:
+================
+*hps*<br>
+
+>./hps 1000000 100
+
+	14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 2.7389s >
+
+<br><br>
+
+***
+MPI Program:
+================
+*hps_mpi*<br>
+
+>./mpirun -np 1 -machinefile machinefile.dsu ./hps_mpi 1000000 100
+
+	Process 0 starting... 
+	Process 0 calculating harmonic progression sum for [1/1] -> [1/1000000]
+
+
+	 S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 2.6398s >
+<br><br>
+>./mpirun -np 2 -machinefile machinefile.dsu ./hps_mpi 1000000 100
+
+	Process 0 starting... 
+	Process 1 starting... 
+	Process 0 calculating harmonic progression sum for [1/1] -> [1/500000]
+	Process 1 calculating harmonic progression sum for [1/500001] -> [1/1000000]
+
+
+	 S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 1.5704s >
+<br><br>
+>./mpirun -np 3 -machinefile machinefile.dsu ./hps_mpi 1000000 100
+
+	Process 2 starting... 
+	Process 0 starting... 
+	Process 1 starting... 
+	Process 2 calculating harmonic progression sum for [1/666667] -> [1/1000000]
+	Process 0 calculating harmonic progression sum for [1/1] -> [1/333333]
+	Process 1 calculating harmonic progression sum for [1/333334] -> [1/666666]
+
+
+	 S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191006
+
+	< Program Runtime: 1.1091s >
+<br><br>
+>./mpirun -np 4 -machinefile machinefile.dsu ./hps_mpi 1000000 100
+
+	Process 3 starting... 
+	Process 1 starting... 
+	Process 1 calculating harmonic progression sum for [1/250001] -> [1/500000]
+	Process 0 starting... 
+	Process 2 starting... 
+	Process 0 calculating harmonic progression sum for [1/1] -> [1/250000]
+	Process 2 calculating harmonic progression sum for [1/500001] -> [1/750000]
+	Process 3 calculating harmonic progression sum for [1/750001] -> [1/1000000]
+
+
+	 S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 0.8845s >
+<br><br>
+
+***
+OMP Program:
+================
+*hps_omp*<br>
+
+> ./hps_omp 1000000 100 1
+
+	Number of threads = 1
+
+	Thread 0 starting...
+
+
+	S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 1.7584s >
+
+<br><br>
+>./hps_omp 1000000 100 2
+
+	Number of threads = 2
+
+	Thread 0 starting...
+	Thread 1 starting...
+
+
+	S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 1.6584s >
+
+<br><br>
+>./hps_omp 1000000 100 3
+
+	Number of threads = 3
+
+	Thread 0 starting...
+	Thread 2 starting...
+	Thread 1 starting...
+
+
+	S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 1.5864s >
+
+<br><br>
+>./hps_omp 1000000 100 4
+
+	Number of threads = 4
+
+	Thread 0 starting...
+	Thread 3 starting...
+	Thread 2 starting...
+	Thread 1 starting...
+
+
+	S(n) = 14.3927267228657236313811274931885876766448000137443116534184330458129585075179950035682981759472191007
+
+	< Program Runtime: 1.6523s >
+
