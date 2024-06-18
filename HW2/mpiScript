@@ -1,0 +1,16 @@
+#!/bin/bash
+
+mpicc HW2-#.c -o HW2-#
+scp /path/to/file/HW2-# mpiuser@Lincoln:/path/to/file/
+scp /path/to/file/HW2-# mpiuser@Washington:/path/to/file/
+scp /path/to/file/HW2-# mpiuser@Jefferson:/path/to/file/
+scp /path/to/file/HW2-# mpiuser@Roosevelt:/path/to/file/
+
+#Note: Remove the machine you are currently on above
+
+# To Create Executable: 
+#	chmod +x ./ompScript 
+#
+# For 'Bad Interpreter Error, type:
+#	sed -i -e 's/\r$//' mpiScript
+

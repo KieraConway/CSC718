@@ -63,7 +63,7 @@ Contents:
 			Attached in both a .md and .txt for compatibility
 
 
-		README.txt:
+		README.md:
 			[Current File] 
 			General information regarding project
 
